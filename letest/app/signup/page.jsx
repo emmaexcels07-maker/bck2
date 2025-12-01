@@ -15,36 +15,34 @@ export default function SignUpPage() {
     setIsSubmitting(true);
     setMessage(null);
 
-   async function handleSubmit(e) {
-  e.preventDefault();
-  setIsSubmitting(true);
-  setMessage(null);
+    try {
+      const res = await apiPost(
+        "https://bck2-2.onrender.com/api/v1/auth/signup",
+        { name, email, password }
+      );
 
-  try {
-    const res = await apiPost(
-      "https://bck2-2.onrender.com/api/v1/auth/signup",
-      { name, email, password }
-    );
+      if (res?.success) {
+        window.location.href = "/signin";
+        return;
+      }
 
-    if (res.success) {
-      window.location.href = "/signin";
-      return;
+      setMessage(res?.message || "Signup failed.");
+    } catch (err) {
+      console.error("Signup Error:", err);
+      setMessage("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setMessage(res.message);
-  } catch (error) {
-    setMessage("Something went wrong. Please try again.");
-    console.error("Signup error:", error);
-  } finally {
-    setIsSubmitting(false);  // <-- ALWAYS runs
   }
-}
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-8 w-full max-w-md">
         <h2 className="text-3xl font-semibold text-center mb-6">Sign Up</h2>
-        {message && <p className="text-center text-green-500 mb-2">{message}</p>}
+
+        {message && (
+          <p className="text-center text-green-500 mb-2">{message}</p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -72,10 +70,10 @@ export default function SignUpPage() {
 
           <button
             type="submit"
+            disabled={isSubmitting}
             className={`w-full bg-green-600 text-white py-2 rounded-lg ${
               isSubmitting ? "opacity-70 cursor-not-allowed" : ""
             }`}
-            disabled={isSubmitting}
           >
             {isSubmitting ? "Signing up..." : "Create Account"}
           </button>
@@ -90,5 +88,4 @@ export default function SignUpPage() {
       </div>
     </div>
   );
-}
 }
