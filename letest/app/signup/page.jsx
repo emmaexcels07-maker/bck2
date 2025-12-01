@@ -9,6 +9,7 @@ const [name, setName] = useState("");
 const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
 const [message, setMessage] = useState(null);
+const [isSubmitting, setIsSubmitting] = useState(false);
 
 
 async function handleSubmit(e) {
