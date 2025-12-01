@@ -3,6 +3,7 @@ import { Signin, Signup } from "../controller/auth.controller.js";
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import User from "../models/auth.model.js";
 import { JWT_SECRETE, JWT_EXPIRE_IN } from "../config/env.js";
 import dotenv from "dotenv";
