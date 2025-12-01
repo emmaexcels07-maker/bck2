@@ -2,8 +2,11 @@
 import Link from "next/link";
 import { apiPost } from "../lib/api.js";
 import { useState } from "react";
+import { useRouter } from "next/navigation";   // <-- ADD THIS
 
 export default function SignUpPage() {
+  const router = useRouter();   // <-- ADD THIS
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,7 +25,7 @@ export default function SignUpPage() {
       );
 
       if (res?.success) {
-        window.location.href = "/signin";
+        router.push("/signin");   // <-- FIXED REDIRECT
         return;
       }
 

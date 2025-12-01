@@ -30,10 +30,13 @@ export default function SignInPage() {
             });
 
             if (res && res.success && res.token) {
-                saveToken(res.token);
-                router.push("/home");
-                return;
-            }
+    console.log("Sign in success, redirecting...");
+    saveToken(res.token);
+    router.push("/home");
+    return;
+}
+console.log("Sign in failed", res);
+
 
             setMessage(res?.message || "Sign in failed");
         } catch (err) {
