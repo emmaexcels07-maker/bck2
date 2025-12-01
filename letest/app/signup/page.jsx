@@ -14,29 +14,38 @@ export default function SignUpPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setMessage(null);
+  e.preventDefault();
+  setIsSubmitting(true);
+  setMessage(null);
 
-    try {
-      const res = await apiPost(
-        "https://bck2-dtr1.onrender.com/api/v1/auth/signup",
-        { name, email, password }
-      );
+  try {
+    const res = await apiPost(
+      "https://bck2-dtr1.onrender.com/api/v1/auth/signup",
+      { name, email, password }
+    );
 
-      if (res?.success) {
-        router.push("/signin");   // <-- FIXED REDIRECT
-        return;
-      }
+    console.log("Signup response:", res); // <-- Debug
 
-      setMessage(res?.message || "Signup failed.");
-    } catch (err) {
-      console.error("Signup Error:", err);
-      setMessage("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+    if (res && res.success) {
+      setMessage("Signup successful! Redirecting...");
+      
+      // Give React a tiny moment to update UI
+      setTimeout(() => {
+        router.push("/signin"); // <-- Redirect
+      }, 100); 
+
+      return;
     }
+
+    setMessage(res?.message || "Signup failed.");
+  } catch (err) {
+    console.error("Signup Error:", err);
+    setMessage("Something went wrong. Please try again.");
+  } finally {
+    setIsSubmitting(false);
   }
+}
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
