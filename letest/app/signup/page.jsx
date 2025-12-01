@@ -39,7 +39,7 @@ return (
 <input value={name} onChange={e=>setName(e.target.value)} className="w-full p-2 border rounded-lg dark:bg-gray-700" placeholder="Full Name" />
 <input type="email" value={email} onChange={e=>setEmail(e.target.value)} className="w-full p-2 border rounded-lg dark:bg-gray-700" placeholder="Email" />
 <input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="w-full p-2 border rounded-lg dark:bg-gray-700" placeholder="Password" />
-<button className="w-full bg-green-600 text-white py-2 rounded-lg">Create Account</button>
+<button type="submit"  className={`w-full bg-green-600 text-white py-2 rounded-lg ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`} disabled={isSubmitting}>{isSubmitting ? "Signing up..." : "Create Account"}</button>
 </form>
 
 
