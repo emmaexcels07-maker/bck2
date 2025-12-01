@@ -32,7 +32,7 @@ app.use('/api/v1/todo', routerTodo);
     await ConnectMongodb();
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
-      console.log(`CORS origin: ${FRONTEND_URL}`);
+      console.log(`CORS origin: https://bck2-1.onrender.com`);
       // Avoid logging secrets in production
     });
   } catch (err) {
