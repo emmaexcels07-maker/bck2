@@ -17,7 +17,7 @@ export default function SignUpPage() {
 
     try {
       const res = await apiPost(
-        "https://bck2-1.onrender.com/api/v1/auth/signup",
+        "https://bck2-dtr1.onrender.com/api/v1/auth/signup",
         { name, email, password }
       );
 
