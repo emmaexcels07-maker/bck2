@@ -10,7 +10,6 @@ import Authrouter from './routes/auth.routes.js';
 import dotenv from 'dotenv';
 import { createTodo, updateTodo, deleteTodo, getTodos } from './controller/todo.controller.js';
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://bck2-1.onrender.com';
 
 const app = express();
 
@@ -18,7 +17,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors({
-  origin: FRONTEND_URL,
+  origin: "https://bck2-1.onrender.com",
   Credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
