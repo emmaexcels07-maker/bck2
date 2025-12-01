@@ -1,5 +1,5 @@
 "use client";
-import { getToken, removeToken } from "@/lib/auth";
+import { getToken, removeToken } from "../lib/auth";
 import { useEffect } from "react";
 
 

@@ -10,8 +10,7 @@ import Authrouter from './routes/auth.routes.js';
 import dotenv from 'dotenv';
 import { createTodo, updateTodo, deleteTodo, getTodos } from './controller/todo.controller.js';
 
-const PORT = process.env.PORT || 5000;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://bck2-1.onrender.com';
 
 const app = express();
 
