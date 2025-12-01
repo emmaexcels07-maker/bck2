@@ -15,12 +15,16 @@ export default function SignUpPage() {
     setIsSubmitting(true);
     setMessage(null);
 
+   async function handleSubmit(e) {
+  e.preventDefault();
+  setIsSubmitting(true);
+  setMessage(null);
+
+  try {
     const res = await apiPost(
-      "https://bck2-2.onrender.com/api/v1/auth/signup", // ✅ FIXED
+      "https://bck2-2.onrender.com/api/v1/auth/signup",
       { name, email, password }
     );
-
-    setIsSubmitting(false);
 
     if (res.success) {
       window.location.href = "/signin";
@@ -28,7 +32,13 @@ export default function SignUpPage() {
     }
 
     setMessage(res.message);
+  } catch (error) {
+    setMessage("Something went wrong. Please try again.");
+    console.error("Signup error:", error);
+  } finally {
+    setIsSubmitting(false);  // <-- ALWAYS runs
   }
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -80,4 +90,5 @@ export default function SignUpPage() {
       </div>
     </div>
   );
+}
 }
