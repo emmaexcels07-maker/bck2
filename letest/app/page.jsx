@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getToken, removeToken } from "../lib/auth";
+import { getToken, removeToken } from "../lib/auth.js";
 
 const API_URL = "https://bck2-dtr1.onrender.com/api/v1/todos";
 
