@@ -1,7 +1,7 @@
 import "./globals.css";
 
 
-export const metadata = { title: "TO-DO App" };
+export const metadata = { title: "Shadow App" };
 
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

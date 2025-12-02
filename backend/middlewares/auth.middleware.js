@@ -1,23 +1,15 @@
 import jwt from "jsonwebtoken";
-import { JWT_SECRETE } from "../config/env.js";
 
-export const authMiddleWare = async (req, res, next) => {
-    const authHeader = req.headers.authorization;
+export const auth = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
 
-    if (!authHeader) 
-        return res.status(401).json({ message: "Authorization header missing" });
-        const token = authHeader.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "Not Authorized" });
 
-    try {
-        const decoded = jwt.verify(token, JWT_SECRETE);
-        req.user = decoded;
-        console.log(decoded);
-        next(); 
-    } catch (error) {
-        return res.status(500).json( error.message );  
-        console.error("Authentication error:", error);
-
-    }   
-}
-
-
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded.id;
+    next();
+  } catch (err) {
+    res.status(401).json({ message: "Invalid Token" });
+  }
+};
