@@ -24,16 +24,19 @@ export default function SignUpPage() {
       { name, email, password }
     );
 
-    console.log("Signup response:", res); // <-- Debug
+    console.log("Signup response:", res);
 
-    if (res && res.success) {
+    // Accept signup success if backend returns a message or user object
+    if (res?.user || res?.message?.toLowerCase().includes("successful")) {
       setMessage("Signup successful! Redirecting...");
-      
-      // Give React a tiny moment to update UI
-      setTimeout(() => {
-        router.push("/signin"); // <-- Redirect
-      }, 100); 
 
+      setTimeout(() => {
+        router.push("/signin");
+      }, 200);
+      if (res?.message?.includes("already")) {
+  setMessage("Email already exists. Try signing in instead.");
+  return;
+}
       return;
     }
 

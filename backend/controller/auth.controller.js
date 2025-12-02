@@ -6,111 +6,105 @@ import { JWT_SECRETE, JWT_EXPIRE_IN } from "../config/env.js";
 
 
 
-export const Signup = async (req, res, next) => {
-
-    const seassion = await mongoose.startSession();
-    seassion.startTransaction();
-
+export const Signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        if (!name || !email || !password) {
-           await seassion.abortTransaction();
-            seassion.endSession();
-            return res.status(400).json({ message: "All fields are required" });
+        // CHECK IF USER ALREADY EXISTS
+        const existingUser = await Auth.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: "Email already exists. Please use another email.",
+            });
         }
 
+        // HASH PASSWORD
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        const isExistingUser = await Auth.findOne({ email }).session(seassion);
-
-        if (isExistingUser) {
-            await seassion.abortTransaction();
-            seassion.endSession();
-            return res.status(400).json({ message: "User already exists" });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        const newUser = await Auth.create([{
+        // CREATE USER
+        const user = await Auth.create({
             name,
             email,
             password: hashedPassword,
-        }], { session: seassion });
+        });
 
-
-        await seassion.commitTransaction();
-        seassion.endSession();
-
-        return res.status(201).json({ 
+        return res.status(201).json({
             success: true,
-            message: "User registered successfully",
-             user: {
-                id: newUser._id,
-                email: newUser.email,
-             }});
+            message: "Signup successful",
+            user: {
+                id: user._id,
+                email: user.email,
+                name: user.name,
+            },
+        });
+    } catch (err) {
+        console.error("Signup Error:", err);
 
-    } catch (error) {
-    try { await seassion.abortTransaction(); } catch (_) {}
-        try { seassion.endSession(); } catch (_) {}
-        console.error("Signup error:", error);
-        res.status(500).json({ message: "Internal server error" });
-        next(error);
-}
+        // HANDLE DUPLICATE KEY ERROR (E11000)
+        if (err.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: "This email is already registered.",
+            });
+        }
 
-}
-
-export const Signin = async (req, res, next) => {
-
-
+        return res.status(500).json({
+            success: false,
+            message: "Server error. Please try again.",
+        });
+    }
+};
+export const Signin = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-       // check if email and password are inputted
-        if (!email || !password) {
-            return res.status(400).json({ message: "Fields can not be empty" });
-        }
-
-        // Validation: Is to check if the user exists already
+        // CHECK IF USER EXISTS
         const user = await Auth.findOne({ email });
-
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email or password",
+            });
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        if (!isPasswordValid) {
-            return res.status(401).json({ message: "Invalid credentials" });
+        // CHECK PASSWORD
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email or password",
+            });
         }
 
+        // GENERATE JWT
         const token = jwt.sign(
-            { userId: user._id, email: user.email },
-            JWT_SECRETE,
-            { expiresIn: JWT_EXPIRE_IN }
+            { id: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: "2h" }
         );
 
-        return res.status(200).json({ 
+        return res.status(200).json({
             success: true,
-            message: "Signin successful",
-            data: {
-                token: token,
-            },
+            message: "Login successful",
+            token,
             user: {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                createdAt: user.createdAt,
-                updatedAt: user.updatedAt,
-            }
-            });
-    } catch (error) {
-         console.error("Signin error:", error);
-        res.status(500).json({ message: "Internal server error" });
-        next(error);
-    }
+            },
+        });
 
-}
+    } catch (err) {
+        console.error("Signin Error:", err);
+
+        return res.status(500).json({
+            success: false,
+            message: "Server error during signin",
+        });
+    }
+};
+
 
 export default {
     Signup,

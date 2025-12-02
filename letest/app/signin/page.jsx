@@ -29,13 +29,13 @@ export default function SignInPage() {
                 password,
             });
 
-            if (res && res.success && res.token) {
-    console.log("Sign in success, redirecting...");
-    saveToken(res.token);
-    router.push("/home");
-    return;
+         if (res?.success && res?.token) {
+  saveToken(res.token);
+  router.push("/home");
+  return;
 }
-console.log("Sign in failed", res);
+
+setMessage(res?.message || "Sign in failed");
 
 
             setMessage(res?.message || "Sign in failed");
