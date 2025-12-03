@@ -1,6 +1,14 @@
 "use client";
 import { useRouter } from "next/navigation";
+import LogoutButton from "../components/LogoutButton";
 
+export default function Home() {
+  return (
+    <div className="p-4 flex justify-end">
+      <LogoutButton />
+    </div>
+  );
+}
 export default function HomePage() {
   const router = useRouter();
 
@@ -10,6 +18,7 @@ export default function HomePage() {
       <section className="bg-blue-600 text-white py-20 px-6 text-center">
         <h1 className="text-5xl font-bold mb-4">Welcome to ShopEase</h1>
         <p className="text-xl mb-6">Find the best deals on your favorite products.</p>
+        
 
         <button
           onClick={() => router.push("/shop")}
