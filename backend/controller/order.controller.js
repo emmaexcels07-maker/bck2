@@ -43,7 +43,8 @@ items: await Promise.all(cart.items.map(async i => {
 const p = await Product.findById(i.productId);
 return { productId: p._id, name: p.title, price: p.price, quantity: i.quantity, image: p.image };
 })),
-total: cart.items.reduce((s, i) => s + (i.quantity * (await Product.findById(i.productId)).price), 0),
+
+total: cart.items.reduce(async (sum, i) => sum + i.quantity * (await Product.findById(i.productId)).price, 0),
 paymentIntentId: session.id,
 status: 'pending'
 });
@@ -51,7 +52,7 @@ status: 'pending'
 
 res.json({ success: true, url: session.url });
 } catch (err) {
-console.error(err);
+console.error(err); 
 res.status(500).json({ success: false, message: err.message });
 }
 };
