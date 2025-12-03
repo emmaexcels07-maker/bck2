@@ -5,10 +5,14 @@ export function saveToken(token) {
 }
 
 export function getToken() {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token");
+}
+
+export function removeToken() {
   if (typeof window !== "undefined") {
-    return localStorage.getItem("token");
+    localStorage.removeItem("token");
   }
-  return null;
 }
 
 export function logout() {
