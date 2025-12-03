@@ -8,6 +8,7 @@ import cartRoutes from "./routes/cart.routes.js";
 import path from "path";
 import authRoutes from "./routes/auth.routes.js";
 
+
 dotenv.config();
 connectDB();
 

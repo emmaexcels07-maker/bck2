@@ -1,5 +1,5 @@
 import express from "express";
-import { auth } from "../middleware/auth.js";
+import { auth } from "../middlewares/auth.middleware.js";
 import { createCheckoutSession, handleSuccess } from "../controllers/order.controller.js";
 
 const router = express.Router();

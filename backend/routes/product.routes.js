@@ -1,6 +1,6 @@
 import express from "express";
 import { getProducts, createProduct } from "../controllers/product.controller.js";
-import { auth } from "../middleware/auth.js";
+import { auth } from "../middlewares/auth.middleware.js";
 import multer from "multer";
 import path from "path";
 
