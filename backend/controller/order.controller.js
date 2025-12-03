@@ -1,10 +1,17 @@
-import Stripe from 'stripe';
+import Stripe from "stripe";
 import Cart from '../models/cart.js';
 import Product from '../models/product.js';
 import Order from '../models/order.js';
 
 
-const stripe = new Stripe(process.env.STRIPE_SECRET);
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
+});
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.warn("⚠ WARNING: STRIPE_SECRET_KEY is missing");
+}
 
 
 export const createCheckoutSession = async (req, res) => {
