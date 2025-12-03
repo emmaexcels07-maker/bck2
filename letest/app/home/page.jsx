@@ -21,7 +21,7 @@ export default function HomePage() {
 
       {/* CATEGORIES */}
       <section className="py-16 px-6 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-6 text-center">Shop by Category</h2>
+        <h2 className="text-3xl font-bold mb-6 text-center text-gray-600">Shop by Category</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {["Electronics", "Fashion", "Home & Kitchen"].map((cat) => (
@@ -31,7 +31,7 @@ export default function HomePage() {
               className="bg-white p-6 shadow-lg rounded-lg cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition"
             >
               <h3 className="text-xl font-semibold">{cat}</h3>
-              <p className="text-gray-600 mt-2">Explore the best in {cat}</p>
+              <p className="text-gray-900 mt-2">Explore the best in {cat}</p>
             </div>
           ))}
         </div>

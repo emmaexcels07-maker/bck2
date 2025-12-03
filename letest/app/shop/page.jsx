@@ -56,7 +56,7 @@ export default function EcommercePage() {
   if (loading) return <div className="p-6 text-center text-lg">Loading products...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-gray-900 p-6">
       <div className="flex justify-between mb-8">
         <h1 className="text-3xl font-bold">E-Commerce Store</h1>
         <div className="flex gap-4 items-center">
@@ -77,7 +77,7 @@ export default function EcommercePage() {
             <p className="text-lg font-bold mb-4">${product.price}</p>
             <button
               onClick={() => addToCart(product)}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg"
+              className="w-full bg-blue-800 text-white py-2 rounded-lg"
             >
               Add to Cart
             </button>
