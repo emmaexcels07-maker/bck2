@@ -27,7 +27,7 @@ export default function EcommercePage() {
 
   // 🔒 AUTH CHECK + INITIAL PRODUCTS LOAD
   useEffect(() => {
-    if (typeof window === "undefined") return; // Safety for build
+    if (typeof window === "undefined") return;
 
     const token = getToken();
     if (!token) {
@@ -108,9 +108,6 @@ export default function EcommercePage() {
     router.replace("/signin");
   }
 
-  if (loading)
-    return <div className="p-6 text-center text-lg text-white">Loading products...</div>;
-
   return (
     <div className="min-h-screen bg-gray-900 p-6">
       {/* HEADER */}
@@ -162,47 +159,56 @@ export default function EcommercePage() {
 
       {/* PRODUCT GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-10">
-        {products.map((product, i) => (
-          <motion.div
-            key={product._id}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.04 }}
-            className="bg-white p-4 rounded-xl shadow-md hover:shadow-2xl transition cursor-pointer"
-          >
-            <img
-              src={product.image || "https://via.placeholder.com/300"}
-              className="w-full h-48 rounded-lg object-cover"
-              alt={product.title}
-            />
-            <h3 className="text-lg font-semibold mt-3">{product.title}</h3>
-            <p className="text-blue-600 font-bold text-xl">${product.price}</p>
-            <button
-              onClick={() => addToCart(product)}
-              className="w-full bg-blue-800 text-white py-2 mt-4 rounded-lg"
-            >
-              Add to Cart
-            </button>
-          </motion.div>
-        ))}
+        {loading
+          ? Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-64 bg-gray-700 animate-pulse rounded-xl"
+              />
+            ))
+          : products.map((product, i) => (
+              <motion.div
+                key={product._id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.04 }}
+                className="bg-white p-4 rounded-xl shadow-md hover:shadow-2xl transition cursor-pointer"
+              >
+                <img
+                  src={product.image || "https://via.placeholder.com/300"}
+                  className="w-full h-48 rounded-lg object-cover"
+                  alt={product.title}
+                />
+                <h3 className="text-lg font-semibold mt-3">{product.title}</h3>
+                <p className="text-blue-600 font-bold text-xl">${product.price}</p>
+                <button
+                  onClick={() => addToCart(product)}
+                  className="w-full bg-blue-800 text-white py-2 mt-4 rounded-lg"
+                >
+                  Add to Cart
+                </button>
+              </motion.div>
+            ))}
       </div>
 
       {/* PAGINATION */}
-      <div className="flex justify-center mt-10 gap-3">
-        {Array.from({ length: pages }, (_, i) => (
-          <button
-            key={i}
-            onClick={() => updateFilter("page", i + 1)}
-            className={`px-4 py-2 rounded-lg ${
-              Number(page) === i + 1
-                ? "bg-blue-600 text-white"
-                : "bg-white shadow"
-            }`}
-          >
-            {i + 1}
-          </button>
-        ))}
-      </div>
+      {!loading && (
+        <div className="flex justify-center mt-10 gap-3">
+          {Array.from({ length: pages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => updateFilter("page", i + 1)}
+              className={`px-4 py-2 rounded-lg ${
+                Number(page) === i + 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-white shadow"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
