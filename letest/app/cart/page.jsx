@@ -23,6 +23,10 @@ export default function CartPage() {
   }
 
   return (
+    <Suspense fallback={<div className="text-white p-10">Loading cart…</div>}>
+      <CartClient />
+    
+    
     <div className="p-6 text-white">
       <h1 className="text-3xl font-bold mb-4">Your Cart</h1>
 
@@ -53,13 +57,10 @@ export default function CartPage() {
         Proceed to Checkout
       </button>
     </div>
-  );
+    </Suspense>
+    );
 }
 
 export default function CartPage() {
-  return (
-    <Suspense fallback={<div className="text-white p-10">Loading cart…</div>}>
-      <CartClient />
-    </Suspense>
-  );
+  
 }
