@@ -1,37 +1,130 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 
 export default function AddProduct() {
-  const [title,setTitle]=useState("");
-  const [price,setPrice]=useState("");
-  const [desc,setDesc]=useState("");
-  const [imageFile,setImageFile]=useState(null);
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [desc, setDesc] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [token, setToken] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e){
+  // Safe client-only localStorage read
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setToken(localStorage.getItem("token") || "");
+    }
+  }, []);
+
+  function handleImageChange(e) {
+    const file = e.target.files[0];
+    setImageFile(file);
+
+    // Preview
+    if (file) setPreview(URL.createObjectURL(file));
+  }
+
+  async function handleSubmit(e) {
     e.preventDefault();
+
+    if (!title.trim() || !price || !desc.trim()) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    setLoading(true);
+
     const form = new FormData();
     form.append("title", title);
     form.append("price", price);
     form.append("description", desc);
     if (imageFile) form.append("image", imageFile);
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      body: form
-    });
-    const data = await res.json();
-    if (data.success) alert("Product created");
-    else alert("Failed");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+          //❌ DO NOT manually set Content-Type here
+        },
+        body: form
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Product created successfully!");
+
+        // Reset form
+        setTitle("");
+        setPrice("");
+        setDesc("");
+        setImageFile(null);
+        setPreview(null);
+      } else {
+        console.error(data);
+        alert(data.message || "Failed to create product");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Network error");
+    }
+
+    setLoading(false);
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-xl mx-auto p-6 bg-white rounded">
-      <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Title" className="w-full p-2 border mb-2" />
-      <input value={price} onChange={e=>setPrice(e.target.value)} placeholder="Price" type="number" className="w-full p-2 border mb-2" />
-      <textarea value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Description" className="w-full p-2 border mb-2" />
-      <input type="file" onChange={e=>setImageFile(e.target.files[0])} className="mb-4" />
-      <button className="bg-blue-600 text-white px-4 py-2 rounded">Create</button>
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-xl mx-auto p-6 bg-white rounded shadow-lg"
+    >
+      <h2 className="text-2xl font-bold mb-4">Add New Product</h2>
+
+      <input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Title"
+        className="w-full p-3 border mb-3 rounded"
+      />
+
+      <input
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+        placeholder="Price"
+        type="number"
+        className="w-full p-3 border mb-3 rounded"
+      />
+
+      <textarea
+        value={desc}
+        onChange={(e) => setDesc(e.target.value)}
+        placeholder="Description"
+        className="w-full p-3 border mb-3 rounded"
+      />
+
+      {/* IMAGE PREVIEW */}
+      {preview && (
+        <img
+          src={preview}
+          alt="preview"
+          className="w-32 h-32 object-cover rounded mb-3 border"
+        />
+      )}
+
+      <input
+        type="file"
+        onChange={handleImageChange}
+        className="mb-4"
+      />
+
+      <button
+        disabled={loading}
+        className="bg-blue-600 text-white px-4 py-2 rounded w-full"
+      >
+        {loading ? "Creating..." : "Create Product"}
+      </button>
     </form>
   );
 }

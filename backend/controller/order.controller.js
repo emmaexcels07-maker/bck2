@@ -69,3 +69,55 @@ export const handleSuccess = async (req, res) => {
 // optional: verify session and mark order paid
 res.json({ success: true });
 };
+
+
+export const createOrder = async (req, res) => {
+  try {
+    const user = req.user.id;
+    const { items, shipping } = req.body;
+
+    let total = 0;
+    for (let item of items) total += item.price * item.quantity;
+
+    // Deduct inventory
+    for (let item of items) {
+      await Product.findByIdAndUpdate(item.product, {
+        $inc: { stock: -item.quantity }
+      });
+    }
+
+    const order = await Order.create({
+      user,
+      items,
+      shipping,
+      total,
+    });
+
+    res.json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const getMyOrders = async (req, res) => {
+  const orders = await Order.find({ user: req.user.id }).sort({ createdAt: -1 });
+  res.json({ success: true, orders });
+};
+
+export const adminGetOrders = async (req, res) => {
+  const orders = await Order.find()
+    .populate("user", "name email")
+    .sort({ createdAt: -1 });
+
+  res.json({ success: true, orders });
+};
+
+export const updateOrderStatus = async (req, res) => {
+  const { status } = req.body;
+  const order = await Order.findByIdAndUpdate(
+    req.params.id,
+    { status },
+    { new: true }
+  );
+  res.json({ success: true, order });
+};
