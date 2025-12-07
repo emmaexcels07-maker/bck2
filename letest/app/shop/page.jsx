@@ -111,51 +111,69 @@ export default function EcommercePage() {
   return (
     <div className="min-h-screen bg-gray-900 p-6">
       {/* HEADER */}
-      <div className="flex justify-between mb-8">
-        <h1 className="text-3xl font-bold text-white">E-Commerce Store</h1>
-        <div className="flex gap-4 items-center">
-          <span className="font-semibold text-white">Cart: {cart.length}</span>
-          <button onClick={handleLogout} className="text-red-400">Logout</button>
+      {loading ? (
+        <div className="flex justify-between mb-8 items-center">
+          <div className="h-8 w-1/3 bg-gray-700 animate-pulse rounded" />
+          <div className="flex gap-4 items-center">
+            <div className="h-6 w-12 bg-gray-700 animate-pulse rounded" />
+            <div className="h-6 w-16 bg-gray-700 animate-pulse rounded" />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex justify-between mb-8">
+          <h1 className="text-3xl font-bold text-white">E-Commerce Store</h1>
+          <div className="flex gap-4 items-center">
+            <span className="font-semibold text-white">Cart: {cart.length}</span>
+            <button onClick={handleLogout} className="text-red-400">Logout</button>
+          </div>
+        </div>
+      )}
 
       {/* FILTER BAR */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-5 rounded-xl shadow-md grid grid-cols-1 md:grid-cols-4 gap-4"
-      >
-        <input
-          placeholder="Search products..."
-          className="p-3 rounded-lg border"
-          value={search}
-          onChange={(e) => updateFilter("search", e.target.value)}
-        />
-        <select
-          className="p-3 rounded-lg border"
-          value={category}
-          onChange={(e) => updateFilter("category", e.target.value)}
-        >
-          <option value="">All Categories</option>
-          {categories.map((c) => (
-            <option key={c._id} value={c._id}>{c.name}</option>
+      {loading ? (
+        <div className="bg-white p-5 rounded-xl shadow-md grid grid-cols-1 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-12 bg-gray-300 animate-pulse rounded-lg" />
           ))}
-        </select>
-        <input
-          placeholder="Min price"
-          type="number"
-          className="p-3 rounded-lg border"
-          value={min}
-          onChange={(e) => updateFilter("min", e.target.value)}
-        />
-        <input
-          placeholder="Max price"
-          type="number"
-          className="p-3 rounded-lg border"
-          value={max}
-          onChange={(e) => updateFilter("max", e.target.value)}
-        />
-      </motion.div>
+        </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white p-5 rounded-xl shadow-md grid grid-cols-1 md:grid-cols-4 gap-4"
+        >
+          <input
+            placeholder="Search products..."
+            className="p-3 rounded-lg border"
+            value={search}
+            onChange={(e) => updateFilter("search", e.target.value)}
+          />
+          <select
+            className="p-3 rounded-lg border"
+            value={category}
+            onChange={(e) => updateFilter("category", e.target.value)}
+          >
+            <option value="">All Categories</option>
+            {categories.map((c) => (
+              <option key={c._id} value={c._id}>{c.name}</option>
+            ))}
+          </select>
+          <input
+            placeholder="Min price"
+            type="number"
+            className="p-3 rounded-lg border"
+            value={min}
+            onChange={(e) => updateFilter("min", e.target.value)}
+          />
+          <input
+            placeholder="Max price"
+            type="number"
+            className="p-3 rounded-lg border"
+            value={max}
+            onChange={(e) => updateFilter("max", e.target.value)}
+          />
+        </motion.div>
+      )}
 
       {/* PRODUCT GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-10">
