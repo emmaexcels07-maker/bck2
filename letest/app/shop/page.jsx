@@ -11,6 +11,7 @@ async function apiRequest(url, method = "GET", body = null) {
   const token = getToken();
 
   const res = await fetch(`${API_URL}/products`, {
+     next: { revalidate: 10 },
     method,
     headers: {
       "Content-Type": "application/json",
@@ -36,7 +37,7 @@ export default function EcommercePage() {
     }
 
     async function loadProducts() {
-      const data = await apiRequest(API_URL);
+      const data = await apiRequest(`${API_URL}/products`);
       if (data.success) setProducts(data.products);
       setLoading(false);
     }

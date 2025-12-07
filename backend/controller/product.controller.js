@@ -1,7 +1,18 @@
 import Product from "../models/product.js";
 
 export const getProducts = async (req, res) => {
+  const now = Date.now();
+
+  // return cache if data is fresh (10 seconds)
+  if (cachedProducts && now - lastFetchTime < 10000) {
+    return res.json({ success: true, products: cachedProducts, cached: true });
+  }
+
   const products = await Product.find();
+
+  cachedProducts = products;
+  lastFetchTime = now;
+
   res.json({ success: true, products });
 };
 

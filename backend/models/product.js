@@ -1,11 +1,7 @@
-import mongoose from "mongoose";
-
 const productSchema = new mongoose.Schema({
-  title: String,
+  title: { type: String, index: true },
   price: Number,
   image: String,
   description: String,
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now, index: true }
 });
-
-export default mongoose.model("Product", productSchema);
