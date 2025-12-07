@@ -62,7 +62,7 @@ export default function HomePage() {
         <motion.button
           whileHover={{ scale: 1.07 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => router.push("/shop")}
+          onClick={() => router.push("/shop/page")}
           className="px-6 py-3 bg-white text-blue-600 rounded-lg text-lg font-semibold shadow-lg"
         >
           Start Shopping
@@ -108,7 +108,7 @@ export default function HomePage() {
               initial={{ opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.1 }}
-              onClick={() => router.push(`/shop?category=${cat.slug}`)}
+              onClick={() => router.push(`/shop/page?category=${cat.slug}`)}
               className="bg-white p-6 shadow-lg rounded-lg cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition"
             >
               <h3 className="text-xl font-semibold">{cat.name}</h3>

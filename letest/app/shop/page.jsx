@@ -22,6 +22,7 @@ async function apiRequest(url, method = "GET", body = null) {
 
   return res.json();
 }
+export const dynamic = "force-dynamic";
 
 export default function EcommercePage() {
   const router = useRouter();
