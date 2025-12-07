@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -8,6 +10,7 @@ import { getToken, removeToken } from "../lib/auth.js";
 const API_URL = "https://bck2-dtr1.onrender.com/api";
 
 async function apiRequest(url, method = "GET", body = null) {
+  if (typeof window === "undefined") return {}; // Skip during build
   const token = getToken();
 
   const res = await fetch(url, {
@@ -22,7 +25,6 @@ async function apiRequest(url, method = "GET", body = null) {
 
   return res.json();
 }
-export const dynamic = "force-dynamic";
 
 export default function EcommercePage() {
   const router = useRouter();
