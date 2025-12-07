@@ -55,7 +55,7 @@ export default function HomePage() {
         transition={{ duration: 0.7 }}
         className="bg-blue-600 text-white py-20 px-6 text-center shadow-lg"
       >
-        <h1 className="text-5xl font-bold mb-4">Welcome to ShopEase</h1>
+        <h1 className="text-5xl font-bold mb-4">Welcome to Nextshop</h1>
         <p className="text-xl mb-6">Find the best deals on your favorite products.</p>
 
 
