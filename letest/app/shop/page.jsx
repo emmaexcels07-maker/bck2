@@ -12,6 +12,10 @@ const API_URL = "https://bck2-dtr1.onrender.com/api";
 export default function EcommercePage() {
   const router = useRouter();
   const params = useSearchParams();
+    const [searchParams, setSearchParams] = useState(null);
+
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -19,11 +23,20 @@ export default function EcommercePage() {
   const [pages, setPages] = useState(1);
   const [cart, setCart] = useState([]);
 
-  const search = params.get("search") || "";
-  const category = params.get("category") || "";
+
   const min = params.get("min") || "";
   const max = params.get("max") || "";
   const page = params.get("page") || 1;
+
+  // Only access useSearchParams after mount
+  useEffect(() => {
+    const params = useSearchParams(); // now safe
+    setSearchParams(params);
+    setSearch(params.get("search") || "");
+    setCategory(params.get("category") || "");
+  }, []);
+
+  if (!searchParams) return <div>Loading...</div>; // avoid server access
 
   // 🔒 AUTH CHECK + INITIAL PRODUCTS LOAD
   useEffect(() => {
