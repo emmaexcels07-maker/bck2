@@ -9,23 +9,6 @@ import { getToken, removeToken } from "../lib/auth.js";
 
 const API_URL = "https://bck2-dtr1.onrender.com/api";
 
-async function apiRequest(url, method = "GET", body = null) {
-  if (typeof window === "undefined") return {}; // Skip during build
-  const token = getToken();
-
-  const res = await fetch(url, {
-    next: { revalidate: 10 },
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: body ? JSON.stringify(body) : null,
-  });
-
-  return res.json();
-}
-
 export default function EcommercePage() {
   const router = useRouter();
   const params = useSearchParams();
@@ -44,6 +27,8 @@ export default function EcommercePage() {
 
   // 🔒 AUTH CHECK + INITIAL PRODUCTS LOAD
   useEffect(() => {
+    if (typeof window === "undefined") return; // Safety for build
+
     const token = getToken();
     if (!token) {
       router.replace("/signin");
@@ -51,44 +36,57 @@ export default function EcommercePage() {
     }
 
     async function loadProducts() {
-      const data = await apiRequest(`${API_URL}/products`);
-      if (data.success) setProducts(data.products);
-      setLoading(false);
+      try {
+        const res = await fetch(`${API_URL}/products`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (data.success) setProducts(data.products);
+      } catch (err) {
+        console.error("Failed to load products:", err);
+      } finally {
+        setLoading(false);
+      }
     }
+
     loadProducts();
-  }, []);
+  }, [router]);
 
   // 🔍 FILTER + CATEGORY FETCH
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     async function loadShop() {
       setLoading(true);
 
-      const q = new URLSearchParams({
-        search,
-        category,
-        min,
-        max,
-        page,
-      }).toString();
+      const query = new URLSearchParams({ search, category, min, max, page }).toString();
 
-      const [prodRes, catRes] = await Promise.all([
-        fetch(`${API_URL}/products/shop?` + q),
-        fetch(`${API_URL}/categories`)
-      ]);
+      try {
+        const [prodRes, catRes] = await Promise.all([
+          fetch(`${API_URL}/products/shop?${query}`),
+          fetch(`${API_URL}/categories`),
+        ]);
 
-      const prodData = await prodRes.json();
-      const catData = await catRes.json();
+        const prodData = await prodRes.json();
+        const catData = await catRes.json();
 
-      if (prodData.success) {
-        setProducts(prodData.products);
-        setPages(prodData.pages);
+        if (prodData.success) {
+          setProducts(prodData.products);
+          setPages(prodData.pages || 1);
+        }
+
+        if (catData.success) {
+          setCategories(catData.categories);
+        }
+      } catch (err) {
+        console.error("Failed to load shop data:", err);
+      } finally {
+        setLoading(false);
       }
-
-      if (catData.success) {
-        setCategories(catData.categories);
-      }
-
-      setLoading(false);
     }
 
     loadShop();
@@ -102,7 +100,7 @@ export default function EcommercePage() {
   }
 
   function addToCart(item) {
-    setCart([...cart, item]);
+    setCart((prev) => [...prev, item]);
   }
 
   function handleLogout() {
@@ -111,11 +109,10 @@ export default function EcommercePage() {
   }
 
   if (loading)
-    return <div className="p-6 text-center text-lg">Loading products...</div>;
+    return <div className="p-6 text-center text-lg text-white">Loading products...</div>;
 
   return (
     <div className="min-h-screen bg-gray-900 p-6">
-
       {/* HEADER */}
       <div className="flex justify-between mb-8">
         <h1 className="text-3xl font-bold text-white">E-Commerce Store</h1>
@@ -137,7 +134,6 @@ export default function EcommercePage() {
           value={search}
           onChange={(e) => updateFilter("search", e.target.value)}
         />
-
         <select
           className="p-3 rounded-lg border"
           value={category}
@@ -148,7 +144,6 @@ export default function EcommercePage() {
             <option key={c._id} value={c._id}>{c.name}</option>
           ))}
         </select>
-
         <input
           placeholder="Min price"
           type="number"
@@ -156,7 +151,6 @@ export default function EcommercePage() {
           value={min}
           onChange={(e) => updateFilter("min", e.target.value)}
         />
-
         <input
           placeholder="Max price"
           type="number"
@@ -179,10 +173,10 @@ export default function EcommercePage() {
             <img
               src={product.image || "https://via.placeholder.com/300"}
               className="w-full h-48 rounded-lg object-cover"
+              alt={product.title}
             />
             <h3 className="text-lg font-semibold mt-3">{product.title}</h3>
             <p className="text-blue-600 font-bold text-xl">${product.price}</p>
-
             <button
               onClick={() => addToCart(product)}
               className="w-full bg-blue-800 text-white py-2 mt-4 rounded-lg"
@@ -209,7 +203,6 @@ export default function EcommercePage() {
           </button>
         ))}
       </div>
-
     </div>
   );
 }
