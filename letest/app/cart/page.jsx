@@ -60,7 +60,3 @@ export default function CartPage() {
     </Suspense>
     );
 }
-
-export default function CartPage() {
-  
-}
