@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import LogoutButton from "../components/LogoutButton";
+import LogoutButton from "../components/LogoutButton.jsx";
 import { getToken } from "../lib/auth.js";
 
 const API_URL = "https://bck2-dtr1.onrender.com/api";

@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import AdminClient from "./AdminClient";
+import AdminClient from "./AdminClient.jsx";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
