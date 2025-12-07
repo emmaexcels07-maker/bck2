@@ -3,8 +3,8 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import ProductCard from "../../components/ProductCard.jsx";
-import ProductSkeleton from "../../components/ProductSkeleton.jsx";
+import ProductCard from "../components/ProductCard.jsx";
+import ProductSkeleton from "../components/ProductSkeleton.jsx";
 import { getToken, removeToken } from "../lib/auth.js";
 
 const API_URL = "https://bck2-dtr1.onrender.com/api";
