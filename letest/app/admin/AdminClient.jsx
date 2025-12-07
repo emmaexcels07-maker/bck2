@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AdminProductRow from "../components/AdminProductRow.jsx";
-import { getToken, removeToken } from "../lib/auth";
+import { getToken, removeToken } from "../lib/auth.js";
 
 const API_URL = "https://bck2-dtr1.onrender.com/api";
 

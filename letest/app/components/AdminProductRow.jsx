@@ -1,6 +1,6 @@
 "use client";
 
-import { getToken } from "../app/lib/auth.js";
+import { getToken } from "../lib/auth.js";
 
 const API_URL = "https://bck2-dtr1.onrender.com/api";
 
