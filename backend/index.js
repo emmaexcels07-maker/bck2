@@ -8,6 +8,8 @@ import cartRoutes from "./routes/cart.routes.js";
 import path from "path";
 import authRoutes from "./routes/auth.routes.js";
 import compression from "compression";
+import categoryRoutes from "./routes/category.routes.js";
+import shopRoutes from "./routes/product.shop.routes.js";
 
 
 dotenv.config();
@@ -27,6 +29,8 @@ app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use(compression());
+app.use("/api/categories", categoryRoutes);
+app.use("/api/products/shop", shopRoutes);
 
 
 

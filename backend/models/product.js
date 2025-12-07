@@ -1,7 +1,12 @@
 const productSchema = new mongoose.Schema({
-  title: { type: String, index: true },
+  title: String,
   price: Number,
   image: String,
   description: String,
-  createdAt: { type: Date, default: Date.now, index: true }
+  featured: { type: Boolean, default: false },
+  category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+  createdAt: { type: Date, default: Date.now }
 });
+
+export default mongoose.model("Product", productSchema);
+

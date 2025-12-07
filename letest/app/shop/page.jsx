@@ -1,17 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { getToken, removeToken, saveToken } from "../lib/auth.js";
+import { motion } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getToken, removeToken } from "../lib/auth.js";
 
-// 🔗 YOUR BACKEND PRODUCTS API
-const API_URL = "https://bck2-dtr1.onrender.com/api"; // update if needed
+const API_URL = "https://bck2-dtr1.onrender.com/api";
 
 async function apiRequest(url, method = "GET", body = null) {
   const token = getToken();
 
-  const res = await fetch(`${API_URL}/products`, {
-     next: { revalidate: 10 },
+  const res = await fetch(url, {
+    next: { revalidate: 10 },
     method,
     headers: {
       "Content-Type": "application/json",
@@ -25,10 +25,21 @@ async function apiRequest(url, method = "GET", body = null) {
 
 export default function EcommercePage() {
   const router = useRouter();
+  const params = useSearchParams();
+
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pages, setPages] = useState(1);
   const [cart, setCart] = useState([]);
 
+  const search = params.get("search") || "";
+  const category = params.get("category") || "";
+  const min = params.get("min") || "";
+  const max = params.get("max") || "";
+  const page = params.get("page") || 1;
+
+  // 🔒 AUTH CHECK + INITIAL PRODUCTS LOAD
   useEffect(() => {
     const token = getToken();
     if (!token) {
@@ -41,9 +52,51 @@ export default function EcommercePage() {
       if (data.success) setProducts(data.products);
       setLoading(false);
     }
-
     loadProducts();
   }, []);
+
+  // 🔍 FILTER + CATEGORY FETCH
+  useEffect(() => {
+    async function loadShop() {
+      setLoading(true);
+
+      const q = new URLSearchParams({
+        search,
+        category,
+        min,
+        max,
+        page,
+      }).toString();
+
+      const [prodRes, catRes] = await Promise.all([
+        fetch(`${API_URL}/products/shop?` + q),
+        fetch(`${API_URL}/categories`)
+      ]);
+
+      const prodData = await prodRes.json();
+      const catData = await catRes.json();
+
+      if (prodData.success) {
+        setProducts(prodData.products);
+        setPages(prodData.pages);
+      }
+
+      if (catData.success) {
+        setCategories(catData.categories);
+      }
+
+      setLoading(false);
+    }
+
+    loadShop();
+  }, [search, category, min, max, page]);
+
+  function updateFilter(key, value) {
+    const newParams = new URLSearchParams(params.toString());
+    if (value) newParams.set(key, value);
+    else newParams.delete(key);
+    router.push(`/shop?${newParams.toString()}`);
+  }
 
   function addToCart(item) {
     setCart([...cart, item]);
@@ -54,37 +107,106 @@ export default function EcommercePage() {
     router.replace("/signin");
   }
 
-  if (loading) return <div className="p-6 text-center text-lg">Loading products...</div>;
+  if (loading)
+    return <div className="p-6 text-center text-lg">Loading products...</div>;
 
   return (
     <div className="min-h-screen bg-gray-900 p-6">
+
+      {/* HEADER */}
       <div className="flex justify-between mb-8">
-        <h1 className="text-3xl font-bold">E-Commerce Store</h1>
+        <h1 className="text-3xl font-bold text-white">E-Commerce Store</h1>
         <div className="flex gap-4 items-center">
-          <span className="font-semibold">Cart: {cart.length}</span>
-          <button onClick={handleLogout} className="text-red-600">Logout</button>
+          <span className="font-semibold text-white">Cart: {cart.length}</span>
+          <button onClick={handleLogout} className="text-red-400">Logout</button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map(product => (
-          <div key={product._id} className="bg-white shadow-md rounded-xl p-4 hover:shadow-xl transition">
+      {/* FILTER BAR */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white p-5 rounded-xl shadow-md grid grid-cols-1 md:grid-cols-4 gap-4"
+      >
+        <input
+          placeholder="Search products..."
+          className="p-3 rounded-lg border"
+          value={search}
+          onChange={(e) => updateFilter("search", e.target.value)}
+        />
+
+        <select
+          className="p-3 rounded-lg border"
+          value={category}
+          onChange={(e) => updateFilter("category", e.target.value)}
+        >
+          <option value="">All Categories</option>
+          {categories.map((c) => (
+            <option key={c._id} value={c._id}>{c.name}</option>
+          ))}
+        </select>
+
+        <input
+          placeholder="Min price"
+          type="number"
+          className="p-3 rounded-lg border"
+          value={min}
+          onChange={(e) => updateFilter("min", e.target.value)}
+        />
+
+        <input
+          placeholder="Max price"
+          type="number"
+          className="p-3 rounded-lg border"
+          value={max}
+          onChange={(e) => updateFilter("max", e.target.value)}
+        />
+      </motion.div>
+
+      {/* PRODUCT GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-10">
+        {products.map((product, i) => (
+          <motion.div
+            key={product._id}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.04 }}
+            className="bg-white p-4 rounded-xl shadow-md hover:shadow-2xl transition cursor-pointer"
+          >
             <img
               src={product.image || "https://via.placeholder.com/300"}
-              alt={product.name}
-              className="w-full rounded-lg mb-4"
+              className="w-full h-48 rounded-lg object-cover"
             />
-            <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-            <p className="text-lg font-bold mb-4">${product.price}</p>
+            <h3 className="text-lg font-semibold mt-3">{product.title}</h3>
+            <p className="text-blue-600 font-bold text-xl">${product.price}</p>
+
             <button
               onClick={() => addToCart(product)}
-              className="w-full bg-blue-800 text-white py-2 rounded-lg"
+              className="w-full bg-blue-800 text-white py-2 mt-4 rounded-lg"
             >
               Add to Cart
             </button>
-          </div>
+          </motion.div>
         ))}
       </div>
+
+      {/* PAGINATION */}
+      <div className="flex justify-center mt-10 gap-3">
+        {Array.from({ length: pages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => updateFilter("page", i + 1)}
+            className={`px-4 py-2 rounded-lg ${
+              Number(page) === i + 1
+                ? "bg-blue-600 text-white"
+                : "bg-white shadow"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+
     </div>
   );
 }
