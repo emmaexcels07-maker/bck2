@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
-import { Product } from "../types/product.js";
+import { Product } from "../types/product";
 import AddToCartButton from "./AddToCartButton.js";
-import QuantitySelector from "./QuantitySelector.jsx";
-import { useCartStore } from "../store/cart.store.js";
+import QuantitySelector from "./QuantitySelector";
+import { useCartStore } from "../store/cart.store";
 
 interface Props { product: Product }
 
