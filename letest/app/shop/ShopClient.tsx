@@ -5,38 +5,56 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useInfiniteProducts } from "../hook/useInfiniteProducts";
 import ProductGrid from "../components/product/ProductGrid";
 
-export default function ShopClient({ searchParams }) {
+interface ShopClientProps {
+  searchParams: Record<string, string | string[] | undefined>;
+}
+
+export default function ShopClient({ searchParams }: ShopClientProps) {
   const router = useRouter();
+  const urlSearchParams = useSearchParams(); // ✅ URLSearchParams
   const loaderRef = useRef<HTMLDivElement>(null);
 
+  // ✅ Safely normalize filters
   const filters = {
-    search: searchParams.get("search") ?? "",
-    category: searchParams.get("category") ?? "",
-    min: searchParams.get("min") ?? "",
-    max: searchParams.get("max") ?? "",
+    search: typeof searchParams.search === "string" ? searchParams.search : "",
+    category: typeof searchParams.category === "string" ? searchParams.category : "",
+    min: typeof searchParams.min === "string" ? searchParams.min : "",
+    max: typeof searchParams.max === "string" ? searchParams.max : "",
   };
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteProducts(filters);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteProducts(filters);
 
-  // Intersection Observer for infinite scroll
+  // ✅ Infinite scroll
   useEffect(() => {
     if (!hasNextPage || !loaderRef.current) return;
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) fetchNextPage(); }, { rootMargin: "200px" });
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) fetchNextPage();
+      },
+      { rootMargin: "200px" }
+    );
+
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
   }, [hasNextPage, fetchNextPage]);
 
+  // ✅ URL updates must use URLSearchParams
   const updateFilter = (key: string, value: string) => {
-    const q = new URLSearchParams(searchParams.toString());
+    const q = new URLSearchParams(urlSearchParams.toString());
+
     value ? q.set(key, value) : q.delete(key);
     router.push(`/shop?${q.toString()}`);
   };
 
   return (
     <div className="min-h-screen bg-gray-900 p-6">
-      {/* Filter bar */}
-      {/* ... input/select elements calling updateFilter */}
-      
       <ProductGrid
         products={data?.pages.flat() ?? []}
         loading={isLoading || isFetchingNextPage}
