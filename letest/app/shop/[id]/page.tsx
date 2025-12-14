@@ -1,6 +1,6 @@
-import ProductDetail from "../../components/product/ProductDetail.jsx";
-import { apiClient } from "../../lib/apiClient.ts";
-import { Product } from "../../components/types/product.ts";
+import ProductDetail from "../../components/product/ProductDetail.js";
+import { apiClient } from "../../lib/apiClient.js";
+import { Product } from "../../components/types/product.js";
 
 interface Props { params: { id: string } }
 

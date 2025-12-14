@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useInfiniteProducts } from "../hook/useInfiniteProducts.js";
+import { useInfiniteProducts } from "../hook/useInfiniteProducts.ts";
 import ProductGrid from "../components/product/ProductGrid.jsx";
 
 export default function ShopClient({ searchParams }) {
