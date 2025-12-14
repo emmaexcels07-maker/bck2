@@ -1,6 +1,6 @@
-import ProductDetail from "../../components/product/ProductDetail.js";
-import { apiClient } from "../../lib/apiClient.js";
-import { Product } from "../../components/types/product.js";
+import ProductDetail from "../../components/product/ProductDetail";
+import { apiClient } from "../../lib/apiClient";
+import { Product } from "../../components/types/product";
 
 interface Props { params: { id: string } }
 

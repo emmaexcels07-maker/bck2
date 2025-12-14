@@ -2,8 +2,8 @@
 
 import { useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useInfiniteProducts } from "../hook/useInfiniteProducts.ts";
-import ProductGrid from "../components/product/ProductGrid.jsx";
+import { useInfiniteProducts } from "../hook/useInfiniteProducts";
+import ProductGrid from "../components/product/ProductGrid";
 
 export default function ShopClient({ searchParams }) {
   const router = useRouter();
