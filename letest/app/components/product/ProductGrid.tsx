@@ -1,5 +1,5 @@
-import { Product } from "../types/product.js";
-import ProductCard from "./ProductCard.jsx";
+import { Product } from "../types/product";
+import ProductCard from "./ProductCard";
 import ProductSkeleton from "./ProductSkeleton.jsx";
 
 export default function ProductGrid({ products, loading }: { products: Product[], loading: boolean }) {
