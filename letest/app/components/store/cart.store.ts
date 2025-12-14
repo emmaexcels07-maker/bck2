@@ -1,16 +1,25 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { Product } from "../types/product";
 
-export const useCartStore = create(
-  persist(
-    (set, get) => ({
-      items: [],
-      addItem: (product) =>
-        set({ items: [...get().items, product] }),
-      removeItem: (id) =>
-        set({ items: get().items.filter(i => i._id !== id) }),
-      clear: () => set({ items: [] }),
-    }),
-    { name: "cart-storage" }
-  )
-);
+interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
+interface CartState {
+  items: CartItem[];
+  addItem: (product: Product, quantity?: number) => void;
+  removeItem: (productId: string) => void;
+}
+
+export const useCartStore = create<CartState>((set) => ({
+  items: [],
+  addItem: (product, quantity = 1) =>
+    set((state) => ({
+      items: [...state.items, { product, quantity }]
+    })),
+  removeItem: (productId) =>
+    set((state) => ({
+      items: state.items.filter(item => item.product._id !== productId)
+    })),
+}));
