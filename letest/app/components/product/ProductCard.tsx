@@ -1,4 +1,4 @@
-import AddToCartButton from "./AddToCartButton.js";
+import AddToCartButton from "./AddToCartButton";
 import { Product } from "../types/product";
 
 export default function ProductCard({ product }: { product: Product }) {

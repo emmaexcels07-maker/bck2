@@ -1,15 +1,15 @@
 "use client";
 import { useState } from "react";
 import { Product } from "../types/product";
-import AddToCartButton from "./AddToCartButton.js";
+import AddToCartButton from "./AddToCartButton";
 import QuantitySelector from "./QuantitySelector";
 import { useCartStore } from "../store/cart.store";
 
 interface Props { product: Product }
 
-export default function ProductDetail({ product }: Props) {
-  const [quantity, setQuantity] = useState(1);
+export default function AddToCartButton({ product }: Props) {
   const addItem = useCartStore(state => state.addItem);
+  const [quantity, setQuantity] = useState(1);
 
   const handleAddToCart = () => {
     addItem({ ...product, quantity });
