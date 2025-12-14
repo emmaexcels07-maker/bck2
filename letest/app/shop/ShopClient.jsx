@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import ProductCard from "../components/ProductCard.jsx";
 import ProductSkeleton from "../components/ProductSkeleton.jsx";
 import { getToken, removeToken } from "../lib/auth.js";
+import { apiFetch } from "../lib/fetch.js";
 
 const API_URL = "https://bck2-dtr1.onrender.com/api";
 
@@ -41,19 +42,42 @@ export default function ShopClient() {
 
   // MAIN FETCH (optimized + cancellable)
   const fetchProducts = useCallback(async () => {
+  if (abortRef.current) abortRef.current.abort();
+  abortRef.current = new AbortController();
+
+  setLoading(true);
+
+  const query = new URLSearchParams({
+    search, category, min, max, page
+  }).toString();
+
+  try {
+    const res = await apiFetch(`${API_URL}/products/shop?${query}`, {
+      signal: abortRef.current.signal,
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      setProducts(prev => [...prev, ...data.products]);
+      setHasMore(data.products.length > 0);
+    }
+  } catch (err) {
+    if (err.name !== "AbortError") console.error(err);
+  }
+
+  setLoading(false);
+
+
     if (abortRef.current) abortRef.current.abort();
     abortRef.current = new AbortController();
 
     setLoading(true);
 
-    const query = new URLSearchParams({
-      search, category, min, max, page
-    }).toString();
-
     try {
-      const res = await fetch(`${API_URL}/products/shop?${query}`, {
-        signal: abortRef.current.signal,
-      });
+        const res = await apiFetch(`${API_URL}/products/shop?${query}`, {
+  signal: abortRef.current.signal,
+});
+      
       const data = await res.json();
 
       if (data.success) {

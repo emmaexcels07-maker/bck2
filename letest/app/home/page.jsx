@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import LogoutButton from "../components/LogoutButton.jsx";
 import { getToken } from "../lib/auth.js";
+import { apiFetch } from "../lib/fetch.js";
 
 const API_URL = "https://bck2-dtr1.onrender.com/api";
 
@@ -23,7 +24,7 @@ export default function HomePage() {
     async function loadData() {
       try {
         const [catsRes, productsRes] = await Promise.all([
-          fetch(`${API_URL}/categories`),
+          apiFetch(`${API_URL}/categories`),
           fetch(`${API_URL}/products?featured=true`),
         ]);
 

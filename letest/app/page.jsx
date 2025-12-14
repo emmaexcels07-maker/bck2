@@ -86,7 +86,7 @@ export default function IntroPage() {
         </p>
 
         <button
-          onClick={() => router.push("/shop")}
+          onClick={() => router.push("/signup")}
           className="px-8 py-3 text-lg rounded-xl bg-blue-600 hover:bg-blue-700 transition shadow-lg"
         >
           Enter Store
