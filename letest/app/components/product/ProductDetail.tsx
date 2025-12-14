@@ -7,7 +7,7 @@ import { useCartStore } from "../store/cart.store";
 
 interface Props { product: Product }
 
-export default function AddToCartButton({ product }: Props) {
+export default function ProductDetail({ product }: Props) {
   const addItem = useCartStore(state => state.addItem);
   const [quantity, setQuantity] = useState(1);
 
@@ -37,6 +37,7 @@ export default function AddToCartButton({ product }: Props) {
             </button>
           </>
         )}
+        <AddToCartButton product={product} />
       </div>
     </div>
   );
