@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "../lib/apiClient.ts";
-import { Product } from "../components/types/product.ts";
+import { apiClient } from "../lib/apiClient";
+import { Product } from "../components/types/product";
 
 const API_URL = "https://bck2-dtr1.onrender.com/api";
 
