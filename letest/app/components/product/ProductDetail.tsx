@@ -12,8 +12,9 @@ export default function ProductDetail({ product }: Props) {
   const [quantity, setQuantity] = useState(1);
 
   const handleAddToCart = () => {
-    addItem({ ...product, quantity });
-  };
+  addItem(product, quantity); // pass quantity separately
+};
+
 
   return (
     <div className="flex flex-col md:flex-row gap-8 bg-white p-6 rounded-xl shadow">

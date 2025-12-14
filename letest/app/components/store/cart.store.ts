@@ -14,10 +14,11 @@ interface CartState {
 
 export const useCartStore = create<CartState>((set) => ({
   items: [],
-  addItem: (product, quantity = 1) =>
-    set((state) => ({
-      items: [...state.items, { product, quantity }]
-    })),
+  
+addItem: (product: Product, quantity: number = 1) => 
+  set((state) => ({
+    items: [...state.items, { product, quantity }],
+  })),
   removeItem: (productId) =>
     set((state) => ({
       items: state.items.filter(item => item.product._id !== productId)
