@@ -1,6 +1,6 @@
 "use client";
-import { useCartStore } from "../store/cart.store.ts";
-import { Product } from "../types/product.ts";
+import { useCartStore } from "../store/cart.store.js";
+import { Product } from "../types/product.js";
 
 interface Props { product: Product }
 
