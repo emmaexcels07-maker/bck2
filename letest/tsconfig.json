@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/signup/page.jsx", "app/signin/page.jsx"  ],
+, "app/signup/page.jsx", "app/signin/page.jsx", "app/components/product/AddToCartButton.jsx"  ],
   "exclude": ["node_modules"]
 }

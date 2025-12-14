@@ -1,13 +1,10 @@
-import { Suspense } from "react";
 import ShopClient from "./ShopClient";
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
+export const metadata = {
+  title: "Shop Products",
+  description: "Browse our products",
+};
 
-export default function Page() {
-  return (
-    <Suspense fallback={<div className="p-6 text-white">Loading shop…</div>}>
-      <ShopClient />
-    </Suspense>
-  );
+export default function ShopPage({ searchParams }) {
+  return <ShopClient searchParams={searchParams} />;
 }
