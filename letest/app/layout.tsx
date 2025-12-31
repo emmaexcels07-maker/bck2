@@ -1,5 +1,6 @@
 import "./globals.css";
 import Providers from "./providers";
+import { CartProvider } from "./lib/cartContext";
 
 export const metadata = { title: "NextShop" };
 
@@ -11,7 +12,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   );

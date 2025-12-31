@@ -8,9 +8,9 @@ export default function EditProductPage() {
   const params = useParams();
 
   const productId = params.id;
-  const [title, setTitle] = useState("");
+  const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [desc, setDesc] = useState("");
+  const [description, setDescription] = useState("");
   const [stock, setStock] = useState(0);
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -23,18 +23,23 @@ export default function EditProductPage() {
   // Load product
   useEffect(() => {
     async function load() {
-      const res = await fetch(`${API_URL}/products/${productId}`);
-      const data = await res.json();
+      try {
+        const res = await fetch(`${API_URL}/products/${productId}`);
+        const data = await res.json();
 
-      if (data.success) {
-        const p = data.product;
-        setTitle(p.title);
-        setPrice(p.price);
-        setDesc(p.description);
-        setStock(p.stock);
-        setPreview(p.image);
+        if (data.success) {
+          const p = data.product;
+          setName(p.name);
+          setPrice(p.price);
+          setDescription(p.description);
+          setStock(p.stock);
+          setPreview(p.images?.[0] || p.image);
+        }
+      } catch (error) {
+        console.error("Failed to load product:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     load();
   }, [productId]);
@@ -57,10 +62,10 @@ export default function EditProductPage() {
     e.preventDefault();
 
     const form = new FormData();
-    form.append("title", title);
+    form.append("name", name);
     form.append("price", price);
-    form.append("description", desc);
-    form.append("stock", stock);
+    form.append("description", description);
+    form.append("stock", stock.toString());
     if (imageFile) form.append("image", imageFile);
 
     const xhr = new XMLHttpRequest();
@@ -74,11 +79,22 @@ export default function EditProductPage() {
     };
 
     xhr.onload = () => {
-      const res = JSON.parse(xhr.responseText);
-      if (res.success) {
-        alert("Updated successfully");
-        router.push("/admin/products");
+      try {
+        const res = JSON.parse(xhr.responseText);
+        if (res.success) {
+          alert("Updated successfully");
+          router.push("/admin/products");
+        } else {
+          alert("Failed to update product");
+        }
+      } catch (error) {
+        console.error("Failed to parse response:", error);
+        alert("An error occurred");
       }
+    };
+
+    xhr.onerror = () => {
+      alert("Network error occurred");
     };
 
     xhr.send(form);
@@ -92,10 +108,11 @@ export default function EditProductPage() {
 
       <form onSubmit={handleSave}>
         <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           className="w-full border p-2 mb-3 rounded"
-          placeholder="Product Title"
+          placeholder="Product Name"
+          required
         />
 
         <input
@@ -104,21 +121,25 @@ export default function EditProductPage() {
           className="w-full border p-2 mb-3 rounded"
           placeholder="Price"
           type="number"
+          step="0.01"
+          required
         />
 
         <textarea
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           className="w-full border p-2 mb-3 rounded"
           placeholder="Description"
+          rows="4"
         />
 
         <input
           value={stock}
-          onChange={(e) => setStock(e.target.value)}
+          onChange={(e) => setStock(Number(e.target.value))}
           className="w-full border p-2 mb-3 rounded"
           type="number"
           placeholder="Stock quantity"
+          min="0"
         />
 
         {/* Drag & Drop */}
@@ -126,10 +147,11 @@ export default function EditProductPage() {
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
           className="border-2 border-dashed p-6 text-center mb-3 rounded cursor-pointer"
+          onClick={() => document.getElementById("filePicker").click()}
         >
           <p>Drag & drop image here or click to upload</p>
 
-          <input type="file" className="hidden" id="filePicker" onChange={handleImageSelect} />
+          <input type="file" className="hidden" id="filePicker" onChange={handleImageSelect} accept="image/*" />
         </div>
 
         {/* Preview */}
@@ -147,8 +169,8 @@ export default function EditProductPage() {
           </div>
         )}
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">
-          Save Changes
+        <button className="bg-blue-600 text-white px-4 py-2 rounded w-full" disabled={progress > 0}>
+          {progress > 0 ? `Uploading... ${progress}%` : "Save Changes"}
         </button>
       </form>
     </div>

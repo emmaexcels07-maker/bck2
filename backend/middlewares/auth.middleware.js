@@ -14,7 +14,7 @@ export const auth = (req, res, next) => {
   }
 };
 
-export const admin = (req, res, next) => {
+export const adminOnly = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
   } else {

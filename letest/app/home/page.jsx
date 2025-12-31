@@ -24,9 +24,9 @@ export default function HomePage() {
     async function loadData() {
       try {
         const [catsRes, productsRes] = await Promise.all([
-          apiFetch(`${API_URL}/categories`),
-          fetch(`${API_URL}/products?featured=true`),
-        ]);
+  apiFetch(`${API_URL}/categories`),
+  apiFetch(`${API_URL}/products?featured=true`),
+]);
 
         const catsData = await catsRes.json();
         const featData = await productsRes.json();
@@ -85,9 +85,11 @@ export default function HomePage() {
               transition={{ delay: i * 0.1 }}
               className="bg-white shadow-lg rounded-xl p-4 hover:shadow-2xl transition"
             >
-              <img
+              <image
                 src={product.image || "https://via.placeholder.com/300"}
                 alt={product.title}
+                width={300}
+                height={300}
                 className="w-full h-48 object-cover rounded-lg"
               />
               <h3 className="text-xl font-semibold mt-4">{product.title}</h3>

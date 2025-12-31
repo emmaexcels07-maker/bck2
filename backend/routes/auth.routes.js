@@ -44,6 +44,9 @@ router.post("/signin", async (req, res) => {
 
     res.status(200).json({ 
       success: true,
+      products: [],
+      nextPage: 2,
+      hasNextPage: true,
       message: "Login successful",
        token,
        user: { id: user._id, email: user.email}

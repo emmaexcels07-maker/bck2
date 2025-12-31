@@ -38,7 +38,7 @@
     "app/signup/page.jsx",
     "app/signin/page.jsx",
     "app/components/product/AddToCartButton.tsx"
-  ],
+, "app/lib/cartContext.tsx"  ],
   "exclude": [
     "node_modules"
   ]

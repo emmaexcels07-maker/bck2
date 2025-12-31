@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import AdminProductRow from "../components/product/AdminProductRow.jsx";
 import { getToken, removeToken } from "../lib/auth.js";
 
-const API_URL = "https://bck2-dtr1.onrender.com/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AdminClient() {
   const router = useRouter();
@@ -14,23 +14,37 @@ export default function AdminClient() {
   const [loading, setLoading] = useState(true);
 
   // NEW PRODUCT FORM
-  const [title, setTitle] = useState("");
+  const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
+  const [stock, setStock] = useState("");
+  const [category, setCategory] = useState("");
   const [image, setImage] = useState(null);
 
   // AUTH CHECK (admin only)
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
   useEffect(() => {
     const token = getToken();
-    if (!token) return router.replace("/signin");
+    if (!token) {
+      router.replace("/signin");
+      return;
+    }
 
     async function verifyAdmin() {
-      const res = await fetch(`${API_URL}/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!data.success || data.user.role !== "admin") {
-        router.replace("/");
+      try {
+        const res = await fetch(`${API_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (!data.success || data.user.role !== "admin") {
+          router.replace("/");
+          return;
+        }
+        setCheckingAuth(false);
+      } catch (error) {
+        console.error("Auth verification failed:", error);
+        router.replace("/signin");
       }
     }
 
@@ -39,22 +53,32 @@ export default function AdminClient() {
 
   // LOAD PRODUCTS
   useEffect(() => {
-    async function loadProducts() {
+    if (!checkingAuth) {
+      loadProducts();
+    }
+  }, [checkingAuth]);
+
+  async function loadProducts() {
+    try {
       const res = await fetch(`${API_URL}/products`);
       const data = await res.json();
       if (data.success) setProducts(data.products);
+    } catch (error) {
+      console.error("Failed to load products:", error);
+    } finally {
       setLoading(false);
     }
-    loadProducts();
-  }, []);
+  }
 
   async function createProduct(e) {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append("title", title);
+    formData.append("name", name);
     formData.append("price", price);
     formData.append("description", description);
+    formData.append("stock", stock);
+    formData.append("category", category);
     if (image) formData.append("image", image);
 
     const token = getToken();
@@ -71,9 +95,11 @@ export default function AdminClient() {
 
     if (data.success) {
       setProducts((prev) => [data.product, ...prev]);
-      setTitle("");
+      setName("");
       setPrice("");
       setDescription("");
+      setStock("");
+      setCategory("");
       setImage(null);
     }
   }
@@ -105,14 +131,16 @@ export default function AdminClient() {
         <input
           required
           className="p-3 rounded border"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Product Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
 
         <input
           required
           type="number"
+          step="0.01"
+          min="0"
           className="p-3 rounded border"
           placeholder="Price"
           value={price}
@@ -125,10 +153,30 @@ export default function AdminClient() {
           placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          rows={3}
+        />
+
+        <input
+          required
+          type="number"
+          min="0"
+          className="p-3 rounded border"
+          placeholder="Stock Quantity"
+          value={stock}
+          onChange={(e) => setStock(e.target.value)}
+        />
+
+        <input
+          required
+          className="p-3 rounded border"
+          placeholder="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
         />
 
         <input
           type="file"
+          accept="image/*"
           className="p-3 border rounded"
           onChange={(e) => setImage(e.target.files[0])}
         />
@@ -143,7 +191,7 @@ export default function AdminClient() {
         <thead className="bg-gray-200">
           <tr>
             <th className="p-3">Image</th>
-            <th className="p-3">Title</th>
+            <th className="p-3">Name</th>
             <th className="p-3">Price</th>
             <th className="p-3">Actions</th>
           </tr>

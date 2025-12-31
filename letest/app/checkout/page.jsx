@@ -16,21 +16,28 @@ export default function CheckoutPage() {
   const API = process.env.NEXT_PUBLIC_API_URL;
 
   async function placeOrder() {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    try {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    const res = await fetch(`${API}/orders`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({ items: cart, shipping }),
-    });
+      const res = await fetch(`${API}/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ items: cart, shipping }),
+      });
 
-    const data = await res.json();
-    if (data.success) {
-      localStorage.removeItem("cart");
-      router.push(`/order/${data.order._id}`);
+      const data = await res.json();
+      if (data.success) {
+        localStorage.removeItem("cart");
+        router.push(`/order/${data.order._id}`);
+      } else {
+        alert("Failed to place order");
+      }
+    } catch (error) {
+      console.error("Error placing order:", error);
+      alert("An error occurred while placing the order");
     }
   }
 
