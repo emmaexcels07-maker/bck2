@@ -1,4 +1,4 @@
-import Product from "../models/product";
+import Product from "../models/product.js";
 import cloudinary from "../lib/cloudinary.js";
 
 export async function getProducts(req, res) {
