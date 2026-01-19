@@ -2,19 +2,26 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true },
+    name: { type: String, required: true },
     description: String,
     price: { type: Number, required: true },
     category: String,
-    image: String,
-    featured: Boolean
+    stock: { type: Number, default: 0 },
+    image: {
+      url: String,
+      public_id: String
+    },
+    images: [String],
+    featured: Boolean,
+    rating: { type: Number, default: 0 }
   },
   { timestamps: true }
 );
 
-/* 🔥 THIS GOES HERE */
+/* 🔥 TEXT SEARCH INDEX */
 productSchema.index({
-  title: "text",
+  name: "text",
+  description: "text",
   category: 1,
   price: 1
 });

@@ -15,109 +15,128 @@ if (!process.env.STRIPE_SECRET_KEY) {
 
 
 export const createCheckoutSession = async (req, res) => {
-try {
-const userId = req.user;
-const cart = await Cart.findOne({ userId });
-if (!cart || cart.items.length === 0) return res.status(400).json({ success: false, message: 'Cart empty' });
+  try {
+    const userId = req.user;
+    const cart = await Cart.findOne({ userId });
+    if (!cart || cart.items.length === 0) return res.status(400).json({ success: false, message: 'Cart empty' });
 
 
-const line_items = await Promise.all(cart.items.map(async i => {
-const p = await Product.findById(i.productId);
-return {
-price_data: {
-currency: 'usd',
-product_data: { name: p.title, images: [ `${process.env.PUBLIC_URL || ''}${p.image}` ] },
-unit_amount: Math.round(p.price * 100)
-},
-quantity: i.quantity
-};
-}));
+    const line_items = await Promise.all(cart.items.map(async i => {
+      const p = await Product.findById(i.productId);
+      return {
+        price_data: {
+          currency: 'usd',
+          product_data: { name: p.title, images: [`${process.env.PUBLIC_URL || ''}${p.image}`] },
+          unit_amount: Math.round(p.price * 100)
+        },
+        quantity: i.quantity
+      };
+    }));
 
 
-const session = await stripe.checkout.sessions.create({
-payment_method_types: ['card'],
-line_items,
-mode: 'payment',
-success_url: `${process.env.CLIENT_URL}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
-cancel_url: `${process.env.CLIENT_URL}/cart`,
-metadata: { userId }
-});
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items,
+      mode: 'payment',
+      success_url: `${process.env.CLIENT_URL}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/cart`,
+      metadata: { userId }
+    });
 
 
-const order = await Order.create({
-userId,
-items: await Promise.all(cart.items.map(async i => {
-const p = await Product.findById(i.productId);
-return { productId: p._id, name: p.title, price: p.price, quantity: i.quantity, image: p.image };
-})),
+    const order = await Order.create({
+      userId,
+      items: await Promise.all(cart.items.map(async i => {
+        const p = await Product.findById(i.productId);
+        return { productId: p._id, name: p.title, price: p.price, quantity: i.quantity, image: p.image };
+      })),
 
-total: cart.items.reduce(async (sum, i) => sum + i.quantity * (await Product.findById(i.productId)).price, 0),
-paymentIntentId: session.id,
-status: 'pending'
-});
+      total: cart.items.reduce(async (sum, i) => sum + i.quantity * (await Product.findById(i.productId)).price, 0),
+      paymentIntentId: session.id,
+      status: 'pending'
+    });
 
 
-res.json({ success: true, url: session.url });
-} catch (err) {
-console.error(err); 
-res.status(500).json({ success: false, message: err.message });
-}
+    res.json({ success: true, url: session.url });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
 
 export const handleSuccess = async (req, res) => {
-// optional: verify session and mark order paid
-res.json({ success: true });
+  // optional: verify session and mark order paid
+  res.json({ success: true });
 };
 
 
 export const createOrder = async (req, res) => {
   try {
-    const user = req.user.id;
+    const userId = req.user.id;
     const { items, shipping } = req.body;
 
-    let total = 0;
-    for (let item of items) total += item.price * item.quantity;
+    if (!items || items.length === 0) {
+      return res.status(400).json({ success: false, message: "No items in order" });
+    }
 
-    // Deduct inventory
+    let total = 0;
     for (let item of items) {
-      await Product.findByIdAndUpdate(item.product, {
+      total += item.price * item.quantity;
+
+      // Deduct inventory
+      await Product.findByIdAndUpdate(item._id, {
         $inc: { stock: -item.quantity }
       });
     }
 
     const order = await Order.create({
-      user,
+      user: userId,
       items,
       shipping,
       total,
+      status: "pending"
     });
 
-    res.json({ success: true, order });
+    res.status(201).json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+export const getMyOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ user: req.user.id }).sort({ createdAt: -1 });
+    res.json({ success: true, orders });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-export const getMyOrders = async (req, res) => {
-  const orders = await Order.find({ user: req.user.id }).sort({ createdAt: -1 });
-  res.json({ success: true, orders });
-};
-
 export const adminGetOrders = async (req, res) => {
-  const orders = await Order.find()
-    .populate("user", "name email")
-    .sort({ createdAt: -1 });
+  try {
+    const orders = await Order.find()
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });
 
-  res.json({ success: true, orders });
+    res.json({ success: true, orders });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
 export const updateOrderStatus = async (req, res) => {
-  const { status } = req.body;
-  const order = await Order.findByIdAndUpdate(
-    req.params.id,
-    { status },
-    { new: true }
-  );
-  res.json({ success: true, order });
+  try {
+    const { status } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+    res.json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };

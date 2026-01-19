@@ -1,20 +1,17 @@
 import { NextResponse } from "next/server";
 
-
 export function middleware(request) {
-const token = request.cookies.get("token")?.value || null;
-const protectedRoutes = ["/home"];
+    const token = request.cookies.get("token")?.value;
 
+    if (!token) {
+        return NextResponse.redirect(
+            new URL("/signin", request.url)
+        );
+    }
 
-if (protectedRoutes.includes(request.nextUrl.pathname) && !token) {
-return NextResponse.redirect(new URL("/signin", request.url));
+    return NextResponse.next();
 }
-
-
-return NextResponse.next();
-}
-
 
 export const config = {
-matcher: ["/home"],
+    matcher: ["/admin/:path*", "/home/:path*"],
 };

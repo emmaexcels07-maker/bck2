@@ -1,23 +1,25 @@
 import jwt from "jsonwebtoken";
 
-export const auth = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
+export function protect(req, res, next) {
+  const auth = req.headers.authorization;
 
-  if (!token) return res.status(401).json({ message: "Not Authorized" });
+  if (!auth || !auth.startsWith("Bearer ")) {
+    return res.status(401).json({ success: false, message: "No token" });
+  }
 
   try {
+    const token = auth.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // 🔴 IMPORTANT: store full decoded payload
+    req.user = decoded;
     next();
-  } catch (err) {
-    res.status(401).json({ message: "Invalid Token" });
+  } catch {
+    res.status(401).json({ success: false, message: "Invalid token" });
   }
-};
+}
 
-export const adminOnly = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
-    next();
-  } else {
-    res.status(403).json({ message: "Admin access denied" });
+export function adminOnly(req, res, next) {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ success: false, message: "Admin only" });
   }
-};
+  next();
+}

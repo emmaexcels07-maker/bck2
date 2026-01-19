@@ -1,13 +1,28 @@
-import { Suspense } from "react";
-import AdminClient from "./AdminClient.jsx";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
+export default async function AdminPage() {
+  const token = cookies().get("token")?.value;
 
-export default function AdminPage() {
-  return (
-    <Suspense fallback={<div className="p-10 text-white">Loading admin...</div>}>
-      <AdminClient />
-    </Suspense>
+  if (!token) redirect("/signin");
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    }
   );
+
+  if (!res.ok) redirect("/signin");
+
+  const data = await res.json();
+
+  if (data.user.role !== "admin") {
+    redirect("/");
+  }
+
+  return <div>Admin Dashboard</div>;
 }
