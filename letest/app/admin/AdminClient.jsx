@@ -509,7 +509,7 @@ try {
   console.error("Create product error:", err);
   alert("An error occurred while creating the product");
 }
-  }
+  
 
 if (loading) return <div className="text-white p-10">Loading...</div>;
 
@@ -618,4 +618,4 @@ return (
     </table>
   </div>
 );
-}
+
