@@ -116,10 +116,7 @@ export default function AdminDashboard() {
       return;
     }
 
-    if (Number(price) <= 0 || Number(stock) < 0) {
-      alert("Price must be positive and stock cannot be negative");
-      return;
-    }
+  
 
     if (!image) {
       alert("Please upload a product image");
