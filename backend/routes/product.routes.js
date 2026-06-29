@@ -1,5 +1,5 @@
 import express from "express";
-import { protect, adminOnly } from "../middlewares/auth.middleware.js";
+import { auth, adminOnly } from "../middlewares/auth.middleware.js";
 import {
   getProducts,
   createProduct,
@@ -16,7 +16,7 @@ router.get("/", getProducts);
 // Admin routes
 router.post(
   "/",
-  protect,
+  auth,
   adminOnly,
   upload.single("image"),
   createProduct
@@ -24,7 +24,7 @@ router.post(
 
 router.put(
   "/:id",
-  protect,
+  auth,
   adminOnly,
   upload.single("image"),
   updateProduct
@@ -32,7 +32,7 @@ router.put(
 
 router.delete(
   "/:id",
-  protect,
+  auth,
   adminOnly,
   deleteProduct
 );
