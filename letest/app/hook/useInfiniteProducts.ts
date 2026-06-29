@@ -12,31 +12,56 @@ interface Filters {
   max?: string;
 }
 
-export function useInfiniteProducts(filters: Record<string, string>) {
-  return useInfiniteQuery<Product[]>({
+interface ProductsResponse {
+  products: Product[];
+  total?: number;
+  page?: number;
+  pages?: number;
+}
+
+export function useInfiniteProducts(filters: Filters = {}) {
+  return useInfiniteQuery({
     queryKey: ["products", filters],
 
-    initialPageParam: 1, // ✅ REQUIRED in v5
+    initialPageParam: 1,
 
     queryFn: async ({ pageParam }) => {
-      const page = pageParam as number; // ✅ cast here
+      const cleanFilters = Object.fromEntries(
+        Object.entries(filters).filter(
+          ([, value]) => value !== undefined && value !== ""
+        )
+      );
 
       const qs = new URLSearchParams({
-        ...Object.fromEntries(
-          Object.entries(filters).map(([k, v]) => [k, String(v)])
-        ),
-        page: String(page),
+        ...cleanFilters,
+        page: String(pageParam),
         limit: String(PAGE_SIZE),
-      }).toString();
+      });
 
-      const data = await apiClient(`${API_URL}/products/shop?${qs}`);
-      return data.products;
+      const data = await apiClient<ProductsResponse>(
+        `${API_URL}/products/shop?${qs}`
+      );
+
+      return data;
     },
 
     getNextPageParam: (lastPage, allPages) => {
-      return lastPage.length === PAGE_SIZE
+      // Prefer backend pagination info if available
+      if (lastPage.pages && lastPage.page) {
+        return lastPage.page < lastPage.pages
+          ? lastPage.page + 1
+          : undefined;
+      }
+
+      // Fallback
+      return lastPage.products.length === PAGE_SIZE
         ? allPages.length + 1
         : undefined;
     },
+
+    select: (data) => ({
+      ...data,
+      pages: data.pages.flatMap((page) => page.products),
+    }),
   });
 }
