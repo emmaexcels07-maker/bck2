@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tanstack/react-query": "^5.101.2",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^1.41.3",
     "compression": "^1.8.1",
