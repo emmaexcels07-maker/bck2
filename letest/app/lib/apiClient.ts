@@ -1,16 +1,20 @@
 import { getToken } from "./auth";
 
-export async function apiClient(url: string, options: RequestInit = {}) {
+export async function apiClient<T = unknown>(
+  url: string,
+  options: RequestInit = {}
+): Promise<T> {
   try {
     const token = getToken();
 
-    const headers = {
-      "Content-Type": "application/json",
-      ...options.headers,
-    };
+    const headers = new Headers(options.headers);
+
+    if (!headers.has("Content-Type") && options.body) {
+      headers.set("Content-Type", "application/json");
+    }
 
     if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+      headers.set("Authorization", `Bearer ${token}`);
     }
 
     const res = await fetch(url, {
@@ -20,26 +24,28 @@ export async function apiClient(url: string, options: RequestInit = {}) {
       credentials: "include",
     });
 
-    // Handle empty responses
+    let data: unknown = null;
+
     const contentType = res.headers.get("content-type");
-    let data;
 
     if (contentType?.includes("application/json")) {
-      data = await res.json();
+      const text = await res.text();
+      data = text ? JSON.parse(text) : null;
     } else {
       data = await res.text();
     }
 
     if (!res.ok) {
-      const error = new Error(
-        typeof data === "object" ? data.message || "API Error" : data
+      throw new Error(
+        typeof data === "object" && data !== null
+          ? (data as any).message || `HTTP ${res.status}`
+          : String(data || `HTTP ${res.status}`)
       );
-      throw error;
     }
 
-    return data;
-  } catch (err) {
-    console.error("API Client Error:", err);
-    throw err;
+    return data as T;
+  } catch (error) {
+    console.error("API Client Error:", error);
+    throw error;
   }
 }
