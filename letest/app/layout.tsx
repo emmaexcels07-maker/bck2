@@ -1,4 +1,8 @@
-import QueryProvider from "@/providers/query-provider";
+import "./globals.css";
+import Providers from "./providers";
+import { CartProvider } from "./lib/cartContext";
+
+export const metadata = { title: "NextShop" };
 
 export default function RootLayout({
   children,
@@ -8,11 +12,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryProvider>
-          {children}
-        </QueryProvider>
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   );
 }
-export const metadata = { title: "NextShop" };

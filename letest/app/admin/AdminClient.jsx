@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import AdminProductRow from "../components/product/AdminProductRow.jsx";
 import { getToken, removeToken } from "../lib/auth.js";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = "bck2-1.onrender.com";
 
 export default function AdminDashboard() {
   const router = useRouter();
