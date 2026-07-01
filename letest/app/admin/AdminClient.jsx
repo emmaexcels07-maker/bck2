@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import AdminProductRow from "../components/product/AdminProductRow.jsx";
 import { getToken, removeToken } from "../lib/auth.js";
 
-const API_URL = "https://bck2-1.onrender.com";
+const API_URL = (process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api` : "https://bck2-dtr1.onrender.com/api");
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -202,8 +202,8 @@ export default function AdminDashboard() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-2 rounded-lg font-medium transition ${activeTab === tab
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-300 hover:bg-gray-700"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-300 hover:bg-gray-700"
                   }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -350,8 +350,8 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-4 py-3">
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${order.status === "completed" ? "bg-green-900 text-green-200" :
-                              order.status === "pending" ? "bg-yellow-900 text-yellow-200" :
-                                "bg-gray-700 text-gray-200"
+                            order.status === "pending" ? "bg-yellow-900 text-yellow-200" :
+                              "bg-gray-700 text-gray-200"
                             }`}>
                             {order.status || "Pending"}
                           </span>
@@ -443,8 +443,8 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3 font-bold text-green-400">${product.price?.toFixed(2)}</td>
                         <td className="px-4 py-3">
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${product.stock > 10 ? "bg-green-900 text-green-200" :
-                              product.stock > 0 ? "bg-yellow-900 text-yellow-200" :
-                                "bg-red-900 text-red-200"
+                            product.stock > 0 ? "bg-yellow-900 text-yellow-200" :
+                              "bg-red-900 text-red-200"
                             }`}>
                             {product.stock > 10 ? "In Stock" : product.stock > 0 ? "Low Stock" : "Out of Stock"}
                           </span>

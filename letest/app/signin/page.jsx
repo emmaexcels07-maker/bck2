@@ -30,18 +30,19 @@ export default function SignInPage() {
             });
 
             if (res && res.success && res.token) {
-    console.log("Sign in success, redirecting...");
-    saveToken(res.token);
-    router.push("/home");
-    return;
-}
-console.log("Sign in failed", res);
+                console.log("Sign in success, redirecting...");
+                saveToken(res.token);
+                router.push("/shop");
+                return;
+            }
+            console.log("Sign in failed", res);
 
 
             setMessage(res?.message || "Sign in failed");
         } catch (err) {
             console.error("Signin error:", err);
-            setMessage("An error occurred. Please try again.");
+            const friendly = err?.response?.message || err?.message || "An error occurred. Please try again.";
+            setMessage(friendly);
         } finally {
             setIsSubmitting(false);
         }
