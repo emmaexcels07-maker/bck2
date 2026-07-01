@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getToken } from "../lib/auth"; // Assume this abstracts localStorage access
+import { getToken } from "../../lib/auth"; // Assume this abstracts localStorage access
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
