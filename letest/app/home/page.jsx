@@ -2,122 +2,141 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import LogoutButton from "../components/LogoutButton.jsx";
 import { getToken } from "../lib/auth.js";
 import { apiFetch } from "../lib/fetch.js";
+import Link from "next/link";
 
 const API_URL = "https://bck2-dtr1.onrender.com/api";
 
-
 export default function HomePage() {
   const router = useRouter();
-
   const [categories, setCategories] = useState([]);
   const [featured, setFeatured] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = getToken();
-    if (!token) router.replace("/signin");
-  }, []);
+    if (!token) {
+      router.replace("/signin");
+      return;
+    }
 
-  useEffect(() => {
     async function loadData() {
       try {
         const [catsRes, productsRes] = await Promise.all([
-  apiFetch(`${API_URL}/categories`),
-  apiFetch(`${API_URL}/products?featured=true`),
-]);
-
+          apiFetch(`${API_URL}/categories`),
+          apiFetch(`${API_URL}/products?featured=true`),
+        ]);
         const catsData = await catsRes.json();
         const featData = await productsRes.json();
-
-        if (catsData.success) setCategories(catsData.categories);
-        if (featData.success) setFeatured(featData.products);
-      } catch (err) {
-        console.error("Failed to load homepage data:", err);
+        if (catsRes.ok && catsData.success) setCategories(catsData.categories);
+        if (productsRes.ok && featData.success) setFeatured(featData.products);
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
+      } finally {
+        setLoading(false);
       }
     }
-
     loadData();
-  }, []);
+  }, [router]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-indigo-600 font-medium">
+        Loading beautiful storefront...
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="p-4 flex justify-end">
-        <LogoutButton />
-      </div>
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      {/* HEADER */}
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <h2 className="text-2xl font-bold tracking-tight text-indigo-700">NextShop</h2>
+          <LogoutButton />
+        </div>
+      </nav>
 
-
-      {/* HERO SECTION */}
+      {/* HERO */}
       <motion.section
-        initial={{ opacity: 0, y: -40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-        className="bg-blue-600 text-white py-20 px-6 text-center shadow-lg"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="relative py-24 bg-gradient-to-br from-indigo-700 via-purple-700 to-indigo-800 text-white overflow-hidden"
       >
-        <h1 className="text-5xl font-bold mb-4">Welcome to Nextshop</h1>
-        <p className="text-xl mb-6">Find the best deals on your favorite products.</p>
-
-
-        <motion.button
-          whileHover={{ scale: 1.07 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => router.push("/shop")}
-          className="px-6 py-3 bg-white text-blue-600 rounded-lg text-lg font-semibold shadow-lg"
-        >
-          Start Shopping
-        </motion.button>
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+          <motion.h1 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="text-6xl font-extrabold mb-6 tracking-tight"
+          >
+            Curated Deals, Just for You
+          </motion.h1>
+          <p className="text-xl text-indigo-100 mb-10 leading-relaxed">
+            Experience a premium shopping journey with our hand-picked selection of high-quality products.
+          </p>
+          <Link
+            href="/shop"
+            className="inline-block px-8 py-4 bg-white text-indigo-700 rounded-full font-bold shadow-lg hover:bg-gray-100 transition-all transform hover:scale-105"
+          >
+            Start Shopping
+          </Link>
+        </div>
       </motion.section>
 
       {/* FEATURED PRODUCTS */}
-      <section className="py-16 px-6 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-6 text-gray-700 text-center">
-          Featured Products
-        </h2>
+      <section className="py-20 px-6 max-w-7xl mx-auto">
+        <div className="flex justify-between items-end mb-12">
+          <h2 className="text-4xl font-extrabold text-gray-900">Featured</h2>
+          <Link href="/shop" className="text-indigo-600 font-semibold hover:underline">View All →</Link>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {featured.map((product, i) => (
             <motion.div
               key={product._id}
-              initial={{ opacity: 0, y: 60 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="bg-white shadow-lg rounded-xl p-4 hover:shadow-2xl transition"
+              className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden"
             >
-              <image
-                src={product.image || "https://via.placeholder.com/300"}
-                alt={product.title}
-                width={300}
-                height={300}
-                className="w-full h-48 object-cover rounded-lg"
-              />
-              <h3 className="text-xl font-semibold mt-4">{product.title}</h3>
-              <p className="text-blue-600 font-bold mt-2">${product.price}</p>
+              <div className="overflow-hidden h-64">
+                <Image
+                  src={product.image || "https://via.placeholder.com/300"}
+                  alt={product.title}
+                  width={300}
+                  height={300}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+              </div>
+              <div className="p-5">
+                <h3 className="text-lg font-bold text-gray-800 truncate">{product.title}</h3>
+                <p className="text-indigo-600 font-bold mt-1 text-xl">${Number(product.price).toFixed(2)}</p>
+              </div>
             </motion.div>
           ))}
         </div>
       </section>
 
-
       {/* CATEGORIES */}
-      <section className="py-16 px-6 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-6 text-center text-gray-600">Shop by Category</h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map((cat, idx) => (
-            <motion.div
-              key={cat._id}
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: idx * 0.1 }}
-              onClick={() => router.push(`/page?category=${cat.slug}`)}
-              className="bg-white p-6 shadow-lg rounded-lg cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition"
-            >
-              <h3 className="text-xl font-semibold">{cat.name}</h3>
-              <p className="text-gray-900 mt-2">{cat.description}</p>
-            </motion.div>
-          ))}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-extrabold mb-12 text-center text-gray-900">Shop by Category</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {categories.map((cat, idx) => (
+              <motion.div
+                key={cat._id}
+                whileHover={{ y: -5 }}
+                onClick={() => router.push(`/shop?category=${cat.slug}`)}
+                className="group p-8 rounded-3xl bg-gray-50 border border-gray-100 cursor-pointer transition-all hover:bg-indigo-50 hover:border-indigo-100"
+              >
+                <h3 className="text-2xl font-bold text-gray-900 group-hover:text-indigo-700">{cat.name}</h3>
+                <p className="text-gray-600 mt-3">{cat.description}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
     </div>

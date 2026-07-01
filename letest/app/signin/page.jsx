@@ -32,7 +32,7 @@ export default function SignInPage() {
             if (res && res.success && res.token) {
                 console.log("Sign in success, redirecting...");
                 saveToken(res.token);
-                router.push("/shop");
+                router.push("/home");
                 return;
             }
             console.log("Sign in failed", res);
