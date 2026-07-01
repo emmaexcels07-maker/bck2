@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getToken } from "../lib/auth"; // Ensure this import path is correct
+import { getToken } from "../../lib/auth"; // Ensure this import path is correct
 
 export default function InventoryPage() {
   const [products, setProducts] = useState([]);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getToken } from "../lib/auth.js";
+import { getToken } from "../lib/auth";
 import { Product } from "../components/types/product";
 
 export default function SellerDashboard() {

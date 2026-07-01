@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { getToken } from "../lib/auth"; // Assume this exists
+import { getToken } from "../../../../lib/auth"; // Assume this exists
 
 export default function EditProductPage() {
   const router = useRouter();
