@@ -50,6 +50,24 @@ export default function HomePage() {
     );
   }
 
+      // Add this handler function inside your component
+  const handleAddToCart = async (product) => {
+    try {
+      const response = await apiFetch(`${API_URL}/cart`, {
+        method: "POST",
+      body: JSON.stringify({productId: product._id, quantity: 1 }),
+      });
+
+      if (response.ok) {
+        alert(`${product.title} added to cart!`);
+        // Optional: Trigger a refresh of cart global state here
+      }
+    } catch (error) {
+        console.error("Failed to add to cart:", error);
+      alert("Could not add item to cart. Please try again.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* HEADER */}
@@ -67,7 +85,7 @@ export default function HomePage() {
         className="relative py-24 bg-gradient-to-br from-indigo-700 via-purple-700 to-indigo-800 text-white overflow-hidden"
       >
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-          <motion.h1 
+          <motion.h1
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             className="text-6xl font-extrabold mb-6 tracking-tight"
@@ -139,6 +157,47 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+  // --- Replace the existing Featured Products section with this: ---
+        <section className="py-20 px-6 max-w-7xl mx-auto">
+          <div className="flex justify-between items-end mb-12">
+            <h2 className="text-4xl font-extrabold text-gray-900">Featured</h2>
+            <Link href="/shop" className="text-indigo-600 font-semibold hover:underline">View All →</Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {featured.map((product, i) => (
+              <motion.div
+                key={product._id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden"
+              >
+                <div className="overflow-hidden h-64">
+                  <Image
+                    src={product.image || "https://via.placeholder.com/300"}
+                    alt={product.title}
+                    width={300}
+                    height={300}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
+                <div className="p-5">
+                  <h3 className="text-lg font-bold text-gray-800 truncate">{product.title}</h3>
+                  <p className="text-indigo-600 font-bold mt-1 text-xl">${Number(product.price).toFixed(2)}</p>
+
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    className="mt-4 w-full py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-md active:scale-95"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
     </div>
   );
 }
