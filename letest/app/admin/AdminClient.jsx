@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getToken, removeToken } from "../lib/auth.js";
-import ProductsTab from "./tabs/ProductsTab"; // Create these folders!
-import OrdersTab from "./tabs/OrdersTab";
-import UsersTab from "./tabs/UsersTab";
-import InventoryTab from "./tabs/InventoryTab";
+import ProductsTab from "./products/page"; // Create these folders!
+import OrdersTab from "./orders/page.jsx";
+import UsersTab from "./users/page.jsx";
+import InventoryTab from "./inventory/page.jsx";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://bck2-dtr1.onrender.com/api";
 

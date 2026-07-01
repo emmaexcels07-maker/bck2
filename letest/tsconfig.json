@@ -22,6 +22,8 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": [
         "./*"
@@ -37,8 +39,9 @@
     "**/*.mts",
     "app/signup/page.jsx",
     "app/signin/page.jsx",
-    "app/components/product/AddToCartButton.tsx"
-, "app/lib/cartContext.tsx"  ],
+    "app/components/product/AddToCartButton.tsx",
+    "app/lib/cartContext.tsx"
+  ],
   "exclude": [
     "node_modules"
   ]
