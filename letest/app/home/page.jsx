@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import LogoutButton from "../components/LogoutButton";
-import ProductCard from "../components/ProductCard"; // Reusing your component
+import ProductCard from "../components/product/ProductCard"; // Reusing your component
 import { getToken } from "../lib/auth";
 import { apiFetch } from "../lib/fetch";
 import Link from "next/link";
