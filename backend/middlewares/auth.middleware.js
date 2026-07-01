@@ -2,16 +2,16 @@ import jwt from "jsonwebtoken";
 
 export function auth(req, res, next) {
   try {
-    const auth = req.headers.authorization;
+    const authHeader = req.headers.authorization;
 
-    if (!auth || !auth.startsWith("Bearer ")) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
         message: "Authorization token required"
       });
     }
 
-    const token = auth.split(" ")[1];
+    const token = authHeader.split(" ")[1];
     const secret = process.env.JWT_SECRET || process.env.JWT_SECRETE;
 
     if (!secret) {
@@ -49,6 +49,7 @@ export function adminOnly(req, res, next) {
         message: "Admin access required"
       });
     }
+
     next();
   } catch (err) {
     res.status(500).json({
@@ -57,3 +58,5 @@ export function adminOnly(req, res, next) {
     });
   }
 }
+
+export const authMiddleWare = auth;

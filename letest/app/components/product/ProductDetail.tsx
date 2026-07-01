@@ -1,44 +1,65 @@
 "use client";
+
 import { useState } from "react";
 import { Product } from "../types/product";
 import AddToCartButton from "./AddToCartButton";
 import QuantitySelector from "./QuantitySelector";
-import { useCartStore } from "../store/cart.store";
 
 interface Props { product: Product }
 
 export default function ProductDetail({ product }: Props) {
-  const addItem = useCartStore(state => state.addItem);
   const [quantity, setQuantity] = useState(1);
-
-  const handleAddToCart = () => {
-  addItem(product, quantity); // pass quantity separately
-};
-
+  const isOutOfStock = product.stock <= 0;
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 bg-white p-6 rounded-xl shadow">
-      <div className="flex-1">
-        <img src={product.images[0]} alt={product.name} className="rounded" />
-      </div>
+    <div className="max-w-6xl mx-auto p-6 md:py-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+        
+        {/* Left: Image Gallery (Premium Layout) */}
+        <div className="aspect-square bg-gray-50 rounded-3xl overflow-hidden border border-gray-100 shadow-sm">
+          <img 
+            src={product.images?.[0] || "/placeholder.png"} 
+            alt={product.name} 
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" 
+          />
+        </div>
 
-      <div className="flex-1 space-y-4">
-        <h1 className="text-3xl font-bold">{product.name}</h1>
-        <p className="text-xl text-gray-700">${product.price}</p>
-        {product.stock <= 0 ? (
-          <span className="text-red-500 font-semibold">Out of stock</span>
-        ) : (
-          <>
-            <QuantitySelector max={product.stock} onChange={setQuantity} />
-            <button
-              onClick={handleAddToCart}
-              className="w-full py-2 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
-            >
-              Add {quantity} to Cart
-            </button>
-          </>
-        )}
-        <AddToCartButton product={product} />
+        {/* Right: Product Info */}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">{product.name}</h1>
+            <p className="text-2xl font-bold text-indigo-600 mt-2">${Number(product.price).toFixed(2)}</p>
+          </div>
+
+          <div className="prose text-gray-600">
+            <p>{product.description || "No description available for this product."}</p>
+          </div>
+
+          {/* Action Section */}
+          <div className="pt-6 border-t border-gray-100 space-y-6">
+            {isOutOfStock ? (
+              <div className="px-6 py-4 bg-gray-50 rounded-xl text-center font-bold text-gray-500 uppercase tracking-widest">
+                Out of Stock
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium text-gray-500">Quantity</span>
+                  <QuantitySelector max={product.stock} onChange={setQuantity} />
+                </div>
+                
+                {/* Pass quantity to your button. 
+                   Ensure your AddToCartButton component is updated to accept this prop.
+                */}
+                <AddToCartButton 
+                  product={product} 
+                  quantity={quantity} 
+                  className="w-full py-4 text-lg" 
+                />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

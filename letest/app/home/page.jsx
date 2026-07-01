@@ -1,14 +1,15 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
-import LogoutButton from "../components/LogoutButton.jsx";
-import { getToken } from "../lib/auth.js";
-import { apiFetch } from "../lib/fetch.js";
+import LogoutButton from "../components/LogoutButton";
+import ProductCard from "../components/ProductCard"; // Reusing your component
+import { getToken } from "../lib/auth";
+import { apiFetch } from "../lib/fetch";
 import Link from "next/link";
 
-const API_URL = "https://bck2-dtr1.onrender.com/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function HomePage() {
   const router = useRouter();
@@ -45,28 +46,10 @@ export default function HomePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 text-indigo-600 font-medium">
-        Loading beautiful storefront...
+        Loading storefront...
       </div>
     );
   }
-
-      // Add this handler function inside your component
-  const handleAddToCart = async (product) => {
-    try {
-      const response = await apiFetch(`${API_URL}/cart`, {
-        method: "POST",
-      body: JSON.stringify({productId: product._id, quantity: 1 }),
-      });
-
-      if (response.ok) {
-        alert(`${product.title} added to cart!`);
-        // Optional: Trigger a refresh of cart global state here
-      }
-    } catch (error) {
-        console.error("Failed to add to cart:", error);
-      alert("Could not add item to cart. Please try again.");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
@@ -76,6 +59,21 @@ export default function HomePage() {
           <h2 className="text-2xl font-bold tracking-tight text-indigo-700">NextShop</h2>
           <LogoutButton />
         </div>
+        // Inside your Navbar/Header component
+        const [isCartOpen, setIsCartOpen] = useState(false);
+
+        // Add to your button
+        <button onClick={() => setIsCartOpen(true)} className="relative">
+          <ShoppingBag />
+          {items.length > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">
+              {items.length}
+            </span>
+          )}
+        </button>
+
+// Render the component
+        <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       </nav>
 
       {/* HERO */}
@@ -93,7 +91,7 @@ export default function HomePage() {
             Curated Deals, Just for You
           </motion.h1>
           <p className="text-xl text-indigo-100 mb-10 leading-relaxed">
-            Experience a premium shopping journey with our hand-picked selection of high-quality products.
+            Experience a premium shopping journey with our hand-picked selection.
           </p>
           <Link
             href="/shop"
@@ -111,6 +109,7 @@ export default function HomePage() {
           <Link href="/shop" className="text-indigo-600 font-semibold hover:underline">View All →</Link>
         </div>
 
+        {/* Using your reusable ProductCard component */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {featured.map((product, i) => (
             <motion.div
@@ -118,21 +117,8 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden"
             >
-              <div className="overflow-hidden h-64">
-                <Image
-                  src={product.image || "https://via.placeholder.com/300"}
-                  alt={product.title}
-                  width={300}
-                  height={300}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-              </div>
-              <div className="p-5">
-                <h3 className="text-lg font-bold text-gray-800 truncate">{product.title}</h3>
-                <p className="text-indigo-600 font-bold mt-1 text-xl">${Number(product.price).toFixed(2)}</p>
-              </div>
+              <ProductCard product={product} />
             </motion.div>
           ))}
         </div>
@@ -143,7 +129,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-extrabold mb-12 text-center text-gray-900">Shop by Category</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {categories.map((cat, idx) => (
+            {categories.map((cat) => (
               <motion.div
                 key={cat._id}
                 whileHover={{ y: -5 }}
@@ -157,47 +143,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-  // --- Replace the existing Featured Products section with this: ---
-        <section className="py-20 px-6 max-w-7xl mx-auto">
-          <div className="flex justify-between items-end mb-12">
-            <h2 className="text-4xl font-extrabold text-gray-900">Featured</h2>
-            <Link href="/shop" className="text-indigo-600 font-semibold hover:underline">View All →</Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featured.map((product, i) => (
-              <motion.div
-                key={product._id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden"
-              >
-                <div className="overflow-hidden h-64">
-                  <Image
-                    src={product.image || "https://via.placeholder.com/300"}
-                    alt={product.title}
-                    width={300}
-                    height={300}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-gray-800 truncate">{product.title}</h3>
-                  <p className="text-indigo-600 font-bold mt-1 text-xl">${Number(product.price).toFixed(2)}</p>
-
-                  <button
-                    onClick={() => handleAddToCart(product)}
-                    className="mt-4 w-full py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-md active:scale-95"
-                  >
-                    Add to Cart
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
     </div>
   );
 }
