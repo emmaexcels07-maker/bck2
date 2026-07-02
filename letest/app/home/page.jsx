@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ShoppingBag } from "lucide-react"; // FIX 1: Added import
+import { ShoppingBag } from "lucide-react";
 import LogoutButton from "../components/LogoutButton";
 import ProductCard from "../components/product/ProductCard";
-import CartDrawer from "../components/CartDrawer"; // FIX: Ensure this is imported
+import CartDrawer from "../components/CartDrawer";
 import { getToken } from "../lib/auth";
 import { apiFetch } from "../lib/fetch";
 import Link from "next/link";
@@ -18,7 +18,8 @@ export default function HomePage() {
   const [categories, setCategories] = useState([]);
   const [featured, setFeatured] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isCartOpen, setIsCartOpen] = useState(false); // FIX 2: Moved up
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([]); // Placeholder for your cart logic
 
   useEffect(() => {
     const token = getToken();
@@ -29,12 +30,12 @@ export default function HomePage() {
 
     async function loadData() {
       try {
+        // FIX: Replaced 'api' with the actual apiFetch call
         const [catsRes, productsRes] = await Promise.all([
-          api,
+          apiFetch(`${API_URL}/categories`),
           apiFetch(`${API_URL}/products?featured=true`),
         ]);
 
-        // FIX 3: Check if responses are OK before parsing JSON
         if (!catsRes.ok || !productsRes.ok) {
           throw new Error("Network response was not ok");
         }
@@ -54,37 +55,33 @@ export default function HomePage() {
   }, [router]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-indigo-600">Loading storefront...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-indigo-600 font-medium">
+        Loading storefront...
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
+      {/* HEADER */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-indigo-700">NextShop</h2>
-
+          <h2 className="text-2xl font-bold tracking-tight text-indigo-700">NextShop</h2>
+          
           <div className="flex items-center gap-4">
-            {/* FIX 4: Corrected Button Logic */}
-            <button onClick={() => setIsCartOpen(true)} className="relative p-2">
+            <button onClick={() => setIsCartOpen(true)} className="relative p-2 hover:bg-gray-100 rounded-full transition">
               <ShoppingBag className="w-6 h-6" />
+              {cartItems.length > 0 && (
+                <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {cartItems.length}
+                </span>
+              )}
             </button>
             <LogoutButton />
           </div>
         </div>
       </nav>
-
-      // Inside your Navbar/Header component
-      const [isCartOpen, setIsCartOpen] = useState(false);
-
-      // Add to your button
-      <button onClick={() => setIsCartOpen(true)} className="relative">
-        <ShoppingBag />
-        {items.length > 0 && (
-          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">
-            {items.length}
-          </span>
-        )}
-      </button>
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
@@ -121,7 +118,6 @@ export default function HomePage() {
           <Link href="/shop" className="text-indigo-600 font-semibold hover:underline">View All →</Link>
         </div>
 
-        {/* Using your reusable ProductCard component */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {featured.map((product, i) => (
             <motion.div
