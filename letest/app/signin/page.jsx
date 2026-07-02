@@ -71,14 +71,6 @@ export default function SignInPage() {
                         placeholder="Password"
                         aria-label="Password"
                     />
-                    <input
-                        type="role"
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                        className="w-full p-2 border rounded-lg dark:bg-gray-700"
-                        placeholder="Role (customer/seller/admin)"
-                        required
-                    />
                     <button
                         type="submit"
                         className={`w-full bg-blue-600 text-white py-2 rounded-lg ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
