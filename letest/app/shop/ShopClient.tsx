@@ -56,7 +56,7 @@ export default function ShopClient({ searchParams }: ShopClientProps) {
   const products = data?.pages.flat() ?? [];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-12">
+    <div className="min-h-screen bg-blue-50 p-6 md:p-12">
       {/* Header Section */}
       <div className="max-w-7xl mx-auto mb-12">
         <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Our Store</h1>
@@ -70,21 +70,21 @@ export default function ShopClient({ searchParams }: ShopClientProps) {
           placeholder="Search products..."
           value={localFilters.search}
           onChange={(e) => handleInputChange("search", e.target.value)}
-          className="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition"
+          className="px-4 py-3 rounded-xl bg-gray-50 text-gray-900 border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition"
         />
         <input
           type="number"
           placeholder="Min price"
           value={localFilters.min}
           onChange={(e) => handleInputChange("min", e.target.value)}
-          className="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition"
+          className="px-4 py-3 rounded-xl bg-gray-50 text-gray-900 border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition"
         />
         <input
           type="number"
           placeholder="Max price"
           value={localFilters.max}
           onChange={(e) => handleInputChange("max", e.target.value)}
-          className="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition"
+          className="px-4 py-3 rounded-xl bg-gray-50 text-gray-900 border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition"
         />
       </div>
 
@@ -97,7 +97,7 @@ export default function ShopClient({ searchParams }: ShopClientProps) {
 
         {!isLoading && products.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-gray-400">No products found for these filters.</p>
+            <p className="text-gray-500">No products found for these filters.</p>
           </div>
         )}
 
@@ -108,7 +108,7 @@ export default function ShopClient({ searchParams }: ShopClientProps) {
               Loading more...
             </motion.div>
           ) : hasNextPage ? (
-            <p className="text-gray-400">Scroll for more</p>
+            <p className="text-gray-500">Scroll for more</p>
           ) : null}
         </div>
       </div>
