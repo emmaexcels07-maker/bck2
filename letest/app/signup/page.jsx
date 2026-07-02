@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { apiPost } from "../lib/api.js";
+import { saveToken, saveUser } from "../lib/auth.js";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -12,7 +13,7 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   // NEW: Add state for role
-  const [role, setRole] = useState("customer"); 
+  const [role, setRole] = useState("customer");
   const [message, setMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,11 +26,35 @@ export default function SignUpPage() {
       // NEW: Send 'role' in the object
       const res = await apiPost(
         "https://bck2-dtr1.onrender.com/api/auth/signup",
-        { name, email, password, role } 
+        { name, email, password, role }
       );
 
       if (res?.user || res?.message?.toLowerCase().includes("successful")) {
-        setMessage("Signup successful! Redirecting...");
+        setMessage("Signup successful! Signing you in...");
+
+        const loginRes = await apiPost("https://bck2-dtr1.onrender.com/api/auth/signin", {
+          email,
+          password,
+        });
+
+        if (loginRes?.success && loginRes?.token) {
+          saveToken(loginRes.token);
+          if (loginRes.user) saveUser(loginRes.user);
+
+          if (loginRes.user?.role === "seller") {
+            router.push("/seller/dashboard");
+            return;
+          }
+
+          if (loginRes.user?.role === "admin") {
+            router.push("/admin");
+            return;
+          }
+
+          router.push("/home");
+          return;
+        }
+
         setTimeout(() => router.push("/signin"), 1500);
         return;
       }
@@ -79,16 +104,6 @@ export default function SignUpPage() {
             required
           />
 
-          <input
-            type="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="w-full p-2 border rounded-lg dark:bg-gray-700"
-            placeholder="Role (customer/seller/admin)"
-            required
-          />
-
-          {/* NEW: Role Selection Dropdown */}
           <div className="space-y-1">
             <label className="text-sm text-gray-500">I want to:</label>
             <select
@@ -105,9 +120,8 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full bg-green-600 text-white py-2 rounded-lg ${
-              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-            }`}
+            className={`w-full bg-green-600 text-white py-2 rounded-lg ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+              }`}
           >
             {isSubmitting ? "Signing up..." : "Create Account"}
           </button>

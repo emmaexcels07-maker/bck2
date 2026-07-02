@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiPost } from "../lib/api.js";
-import { saveToken } from "../lib/auth.js";
+import { saveToken, saveUser } from "../lib/auth.js";
 import { useState } from "react";
 
 export default function SignInPage() {
@@ -30,8 +30,19 @@ export default function SignInPage() {
             });
 
             if (res && res.success && res.token) {
-                console.log("Sign in success, redirecting...");
                 saveToken(res.token);
+                if (res.user) saveUser(res.user);
+
+                if (res.user?.role === "seller") {
+                    router.push("/seller/dashboard");
+                    return;
+                }
+
+                if (res.user?.role === "admin") {
+                    router.push("/admin");
+                    return;
+                }
+
                 router.push("/home");
                 return;
             }
