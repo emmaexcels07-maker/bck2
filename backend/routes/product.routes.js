@@ -9,23 +9,13 @@ import {
 } from "../controller/product.controller.js";
 import { upload } from '../config/cloudinary.js';
 
-const upload = multer({ dest: 'uploads/' }); // Files stored locally
 const router = express.Router();
 
 // Public routes
 router.get("/", getProducts);
 
-// Only logged in sellers can add products
-router.post('/', protect, authorizeSeller, upload.single('image'), createProduct);
-
-// Admin routes
-router.post(
-  "/",
-  auth,
-  adminOnly,
-  upload.single("image"),
-  createProduct
-);
+// Authenticated users can add products
+router.post("/", auth, upload.single("image"), createProduct);
 
 router.put(
   "/:id",
