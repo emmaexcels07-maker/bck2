@@ -16,22 +16,29 @@ export default function ShopClient({ searchParams }: ShopClientProps) {
   const loaderRef = useRef<HTMLDivElement>(null);
 
   // Local state for smooth input experience
-  const [localFilters, setLocalFilters] = useState({
+  type FilterState = {
+    search: string;
+    min: string;
+    max: string;
+  };
+
+  const [localFilters, setLocalFilters] = useState<FilterState>({
     search: (typeof searchParams.search === "string" ? searchParams.search : "") || "",
     min: (typeof searchParams.min === "string" ? searchParams.min : "") || "",
     max: (typeof searchParams.max === "string" ? searchParams.max : "") || "",
   });
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = 
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteProducts(localFilters);
 
   // Debounced Filter Update
   useEffect(() => {
     const handler = setTimeout(() => {
       const q = new URLSearchParams(urlSearchParams.toString());
-      
+
       Object.entries(localFilters).forEach(([key, value]) => {
-        if (value) q.set(key, value);
+        const stringValue = String(value ?? "");
+        if (stringValue) q.set(key, stringValue);
         else q.delete(key);
       });
 
@@ -76,7 +83,7 @@ export default function ShopClient({ searchParams }: ShopClientProps) {
           type="number"
           placeholder="Max price"
           value={localFilters.max}
-          onChange={(e) => handleInputChange("min", e.target.value)} // ensure key is 'max'
+          onChange={(e) => handleInputChange("max", e.target.value)}
           className="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition"
         />
       </div>
@@ -87,7 +94,7 @@ export default function ShopClient({ searchParams }: ShopClientProps) {
           products={products}
           loading={isLoading || isFetchingNextPage}
         />
-        
+
         {!isLoading && products.length === 0 && (
           <div className="text-center py-20">
             <p className="text-gray-400">No products found for these filters.</p>

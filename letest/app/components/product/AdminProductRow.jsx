@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getToken } from "@/app/lib/auth";
+import { getToken } from "../../lib/auth";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -70,9 +70,8 @@ export default function AdminProductRow({ product, onProductDeleted }) {
         <button
           onClick={handleDelete}
           disabled={isDeleting}
-          className={`text-sm font-medium transition-colors ${
-            isDeleting ? "text-gray-500 cursor-not-allowed" : "text-red-400 hover:text-red-300"
-          }`}
+          className={`text-sm font-medium transition-colors ${isDeleting ? "text-gray-500 cursor-not-allowed" : "text-red-400 hover:text-red-300"
+            }`}
         >
           {isDeleting ? "Deleting..." : "Delete"}
         </button>
