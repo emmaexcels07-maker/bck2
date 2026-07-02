@@ -46,6 +46,9 @@ export const createProduct = async (req, res) => {
   try {
     const { name, price, description, category } = req.body;
 
+    // Cloudinary returns the URL in req.file.path
+    const imageUrl = req.file ? req.file.path : null;
+
     // 1️⃣ Validate required fields
     if (!name || !price) {
       return res.status(400).json({ message: "Name and price are required" });

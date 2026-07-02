@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useInfiniteProducts } from "../hook/useInfiniteProducts";
 import ProductGrid from "../components/product/ProductGrid";
@@ -13,6 +13,8 @@ interface ShopClientProps {
 export default function ShopClient({ searchParams }: ShopClientProps) {
   const router = useRouter();
   const urlSearchParams = useSearchParams();
+  const category =
+    typeof searchParams.category === "string" ? searchParams.category : undefined;
   const loaderRef = useRef<HTMLDivElement>(null);
 
   // Local state for smooth input experience
@@ -23,7 +25,8 @@ export default function ShopClient({ searchParams }: ShopClientProps) {
   };
 
   const [localFilters, setLocalFilters] = useState<FilterState>({
-    search: (typeof searchParams.search === "string" ? searchParams.search : "") || "",
+    search:
+      (typeof searchParams.search === "string" ? searchParams.search : "") || "",
     min: (typeof searchParams.min === "string" ? searchParams.min : "") || "",
     max: (typeof searchParams.max === "string" ? searchParams.max : "") || "",
   });
@@ -53,7 +56,25 @@ export default function ShopClient({ searchParams }: ShopClientProps) {
     setLocalFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const products = data?.pages.flat() ?? [];
+  const products = data?.pages ?? [];
+
+  // Infinite scroll observer: trigger loading next page
+  useEffect(() => {
+    const el = loaderRef.current;
+    if (!el) return;
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [loaderRef, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="min-h-screen bg-blue-50 p-6 md:p-12">
@@ -110,6 +131,18 @@ export default function ShopClient({ searchParams }: ShopClientProps) {
           ) : hasNextPage ? (
             <p className="text-gray-500">Scroll for more</p>
           ) : null}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {products.map((product) => (
+            <div key={product._id} className="border p-4 rounded-lg">
+              <h3 className="font-bold">{product.name}</h3>
+              <p>${product.price}</p>
+              <button className="bg-indigo-600 text-white w-full mt-2 py-2 rounded">
+                Add to Cart
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </div>

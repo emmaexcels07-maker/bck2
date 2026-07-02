@@ -34,6 +34,19 @@ const authSchema = new mongoose.Schema({
 
 );
 
+// models/user.model.js
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  password: { type: String, select: false },
+  role: { 
+    type: String, 
+    enum: ["customer", "seller", "admin"], 
+    default: "customer" 
+  },
+  isSellerApproved: { type: Boolean, default: false } // Only set to true if Admin approves
+});
+
 export default mongoose.model("auth", authSchema);
 
 const Auth = mongoose.model("auth", authSchema);
