@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiFetch } from "../../../lib/fetch";
+import { apiFetch } from "../lib/fetch.js";
 import { getToken, removeToken } from "../lib/auth.js";
 import ProductsTab from "./products/page"; // Create these folders!
 import OrdersTab from "./orders/page.jsx";
