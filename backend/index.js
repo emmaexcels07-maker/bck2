@@ -20,9 +20,25 @@ const app = express();
 // Middleware
 app.use(compression());
 
+const allowedOrigins = [
+  ...(process.env.CLIENT_URL?.split(",") ?? []),
+  ...(process.env.FRONTEND_URL?.split(",") ?? []),
+  ...(process.env.NEXT_PUBLIC_API_URL?.split(",") ?? []),
+  "https://bck2-1.onrender.com",
+  "https://bck2-dtr1.onrender.com",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+]
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS origin denied: ${origin}`));
+  },
+  credentials: true,
 }));
 
 app.use(express.json());
@@ -39,6 +55,8 @@ app.use("/api/products/shop", shopRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/admin", authRoutes); // Admin routes can be added here
+
 
 app.get("/", (req, res) => {
   res.send("E-Commerce Backend Running");
