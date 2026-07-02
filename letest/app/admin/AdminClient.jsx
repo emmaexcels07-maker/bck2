@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "../../../lib/fetch";
 import { getToken, removeToken } from "../lib/auth.js";
 import ProductsTab from "./products/page"; // Create these folders!
 import OrdersTab from "./orders/page.jsx";
@@ -9,6 +10,61 @@ import UsersTab from "./users/page.jsx";
 import InventoryTab from "./inventory/page.jsx";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://bck2-dtr1.onrender.com/api";
+
+export default function ManageUsers() {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      const res = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users`);
+      const data = await res.json();
+      setUsers(data);
+    }
+    fetchUsers();
+  }, []);
+
+  const handlePromote = async (userId) => {
+    // Call your backend route that sets role: "seller"
+    await apiPost(`${process.env.NEXT_PUBLIC_API_URL}/admin/approve-seller/${userId}`);
+    alert("User promoted to Seller!");
+    // Refresh list logic here...
+  };
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-6">User Management</h1>
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <table className="w-full text-left">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              <th className="p-4">Name</th>
+              <th className="p-4">Role</th>
+              <th className="p-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user._id} className="border-b">
+                <td className="p-4">{user.name}</td>
+                <td className="p-4 capitalize">{user.role}</td>
+                <td className="p-4">
+                  {user.role === 'customer' && (
+                    <button 
+                      onClick={() => handlePromote(user._id)}
+                      className="text-green-600 font-bold hover:underline"
+                    >
+                      Promote to Seller
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminDashboard() {
   const router = useRouter();

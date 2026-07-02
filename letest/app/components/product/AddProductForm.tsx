@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 
 interface AddProductFormState {
     name: string;
@@ -15,7 +15,7 @@ export default function AddProductForm() {
     });
     const [file, setFile] = useState<File | null>(null);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const data = new FormData();

@@ -1,54 +1,47 @@
 "use client";
+
 import Link from "next/link";
 import { apiPost } from "../lib/api.js";
 import { useState } from "react";
-import { useRouter } from "next/navigation";   // <-- ADD THIS
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
-  const router = useRouter();   // <-- ADD THIS
+  const router = useRouter();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // NEW: Add state for role
+  const [role, setRole] = useState("customer"); 
   const [message, setMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e) {
-  e.preventDefault();
-  setIsSubmitting(true);
-  setMessage(null);
+    e.preventDefault();
+    setIsSubmitting(true);
+    setMessage(null);
 
-  try {
-    const res = await apiPost(
-      "https://bck2-dtr1.onrender.com/api/auth/signup",
-      { name, email, password }
-    );
+    try {
+      // NEW: Send 'role' in the object
+      const res = await apiPost(
+        "https://bck2-dtr1.onrender.com/api/auth/signup",
+        { name, email, password, role } 
+      );
 
-    console.log("Signup response:", res);
+      if (res?.user || res?.message?.toLowerCase().includes("successful")) {
+        setMessage("Signup successful! Redirecting...");
+        setTimeout(() => router.push("/signin"), 1500);
+        return;
+      }
 
-    // Accept signup success if backend returns a message or user object
-    if (res?.user || res?.message?.toLowerCase().includes("successful")) {
-      setMessage("Signup successful! Redirecting...");
-
-      setTimeout(() => {
-        router.push("/signin");
-      }, 200);
-      if (res?.message?.includes("already")) {
-  setMessage("Email already exists. Try signing in instead.");
-  return;
-}
-      return;
+      setMessage(res?.message || "Signup failed.");
+    } catch (err) {
+      console.error("Signup Error:", err);
+      setMessage("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setMessage(res?.message || "Signup failed.");
-  } catch (err) {
-    console.error("Signup Error:", err);
-    setMessage("Something went wrong. Please try again.");
-  } finally {
-    setIsSubmitting(false);
   }
-}
-
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -56,7 +49,7 @@ export default function SignUpPage() {
         <h2 className="text-3xl font-semibold text-center mb-6">Sign Up</h2>
 
         {message && (
-          <p className="text-center text-green-500 mb-2">{message}</p>
+          <p className="text-center text-green-500 mb-4">{message}</p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -65,6 +58,7 @@ export default function SignUpPage() {
             onChange={(e) => setName(e.target.value)}
             className="w-full p-2 border rounded-lg dark:bg-gray-700"
             placeholder="Full Name"
+            required
           />
 
           <input
@@ -73,6 +67,7 @@ export default function SignUpPage() {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full p-2 border rounded-lg dark:bg-gray-700"
             placeholder="Email"
+            required
           />
 
           <input
@@ -81,7 +76,21 @@ export default function SignUpPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-2 border rounded-lg dark:bg-gray-700"
             placeholder="Password"
+            required
           />
+
+          {/* NEW: Role Selection Dropdown */}
+          <div className="space-y-1">
+            <label className="text-sm text-gray-500">I want to:</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full p-2 border rounded-lg dark:bg-gray-700"
+            >
+              <option value="customer">Buy Products</option>
+              <option value="seller">Sell Products</option>
+            </select>
+          </div>
 
           <button
             type="submit"

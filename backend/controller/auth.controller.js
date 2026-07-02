@@ -8,7 +8,7 @@ import { JWT_SECRETE, JWT_EXPIRE_IN } from "../config/env.js";
 
 export const Signup = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, role } = req.body;
 
         // CHECK IF USER ALREADY EXISTS
         const existingUser = await Auth.findOne({ email });
@@ -27,6 +27,8 @@ export const Signup = async (req, res) => {
             name,
             email,
             password: hashedPassword,
+            role: role || "customer", // Default to 'customer' if no role is provided
+            
         });
 
         return res.status(201).json({

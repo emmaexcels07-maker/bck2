@@ -1,5 +1,4 @@
 import express from "express";
-import multer from "multer";
 import { auth, adminOnly } from "../middlewares/auth.middleware.js";
 import {
   getProducts,
