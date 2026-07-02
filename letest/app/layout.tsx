@@ -1,18 +1,13 @@
 import "./globals.css";
-import Providers from "./providers";
-import { CartProvider } from "./lib/cartContext";
+import Providers from "./providers"
 
 export const metadata = { title: "NextShop" };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <CartProvider>{children}</CartProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
