@@ -53,6 +53,11 @@ export function getUser() {
   }
 }
 
+export function getToken() {
+  if (typeof window === 'undefined') return null; // Return null if on server
+  return localStorage.getItem("token");
+}
+
 export function logout() {
   removeToken();
 }
