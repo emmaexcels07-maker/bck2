@@ -103,7 +103,7 @@ export default function HomePage() {
             Experience a premium shopping journey with our hand-picked selection.
           </p>
           <Link
-            href="/shop"
+            href="/shop/page.jsx"
             className="inline-block px-8 py-4 bg-white text-indigo-700 rounded-full font-bold shadow-lg hover:bg-gray-100 transition-all transform hover:scale-105"
           >
             Start Shopping
