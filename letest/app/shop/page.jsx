@@ -1,4 +1,3 @@
-"use client"
 import ShopClient from "./ShopClient";
 
 export const metadata = {
