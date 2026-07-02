@@ -32,14 +32,18 @@ const allowedOrigins = [
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-app.use(cors({
+const corsOptions = {
+  credentials: true,
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
+    if (allowedOrigins.length === 0) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error(`CORS origin denied: ${origin}`));
   },
-  credentials: true,
-}));
+};
+
+app.options("*", cors(corsOptions));
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
