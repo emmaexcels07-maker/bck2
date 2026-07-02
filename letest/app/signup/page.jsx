@@ -79,6 +79,15 @@ export default function SignUpPage() {
             required
           />
 
+          <input
+            type="role"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="w-full p-2 border rounded-lg dark:bg-gray-700"
+            placeholder="Role (customer/seller/admin)"
+            required
+          />
+
           {/* NEW: Role Selection Dropdown */}
           <div className="space-y-1">
             <label className="text-sm text-gray-500">I want to:</label>
@@ -89,6 +98,7 @@ export default function SignUpPage() {
             >
               <option value="customer">Buy Products</option>
               <option value="seller">Sell Products</option>
+              <option value="admin">Admin Access</option>
             </select>
           </div>
 
