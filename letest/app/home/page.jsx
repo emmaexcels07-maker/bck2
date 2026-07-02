@@ -30,7 +30,7 @@ export default function HomePage() {
     async function loadData() {
       try {
         const [catsRes, productsRes] = await Promise.all([
-          apiFetch(`${API_URL}/categories`),
+          api,
           apiFetch(`${API_URL}/products?featured=true`),
         ]);
 
