@@ -7,7 +7,6 @@ import {
   updateProduct,
   deleteProduct,
 } from "../controller/product.controller.js";
-import upload from "../middlewares/upload.js";
 import { upload } from '../config/cloudinary.js';
 
 const upload = multer({ dest: 'uploads/' }); // Files stored locally
