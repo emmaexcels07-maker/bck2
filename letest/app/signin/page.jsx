@@ -39,7 +39,7 @@ export default function SignInPage() {
                 }
 
                 if (res.user?.role === "admin") {
-                    router.push("/admin");
+                    router.push("/admin/AdminClient");
                     return;
                 }
 
