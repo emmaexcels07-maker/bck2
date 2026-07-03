@@ -3,13 +3,23 @@
 import Link from "next/link";
 import AddToCartButton from "./AddToCartButton";
 import { Product } from "../types/product";
-import { useCartStore } from "../../lib/store
+import { useCartStore } from "../../lib/store";
 
 export default function ProductCard({ product }: { product: Product }) {
   const isOutOfStock = product.stock <= 0;
-
+  const addToCart = useCartStore((state) => state.addToCart);
   return (
     <article className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden hover:-translate-y-1">
+      <div className="p-4 border rounded-lg" >
+        <h3>{product.name}</h3>
+        <button
+          onClick={() => addToCart(product)}
+          className="bg-indigo-600 text-white px-4 py-2 rounded"
+        >
+          Add to Cart
+        </button>
+      </div >
+
       {/* Product Image */}
       <Link href={`/product/${product._id}`} className="block aspect-square overflow-hidden bg-gray-100">
         <img
