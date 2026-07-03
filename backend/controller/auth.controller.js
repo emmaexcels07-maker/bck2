@@ -28,7 +28,7 @@ export const Signup = async (req, res) => {
             email,
             password: hashedPassword,
             role: role || "customer", // Default to 'customer' if no role is provided
-            
+
         });
 
         return res.status(201).json({
@@ -113,3 +113,22 @@ export default {
     Signup,
     Signin
 }
+
+export const Me = async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ success: false, message: "Not authenticated" });
+        }
+
+        // req.user is populated by auth middleware
+        const { id, email, role } = req.user;
+
+        return res.status(200).json({
+            success: true,
+            user: { id, email, role }
+        });
+    } catch (err) {
+        console.error("Me Error:", err);
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
+};

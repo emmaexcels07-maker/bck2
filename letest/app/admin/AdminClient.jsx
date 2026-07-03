@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getToken, removeToken } from "../lib/auth.js";// AdminClient.jsx
 // Assuming you have a page.jsx inside each folder
-import ProductsTab from "./products/page"; 
+import ProductsTab from "./products/page";
 import OrdersTab from "./orders/page";
 import UsersTab from "./users/page";
 import InventoryTab from "./inventory/page";
@@ -22,11 +22,19 @@ export default function AdminDashboard() {
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     fetch(`${API_URL}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => res.json())
-      .then(data => {
-        if (!data.success || data.user.role !== "admin") router.replace("/");
-        else setCheckingAuth(false);
+      .then((data) => {
+        console.log("Auth Check Response:", data);
+        if (!data.success || data.user?.role !== "admin") {
+          console.log("Redirecting because:", !data.success ? "Auth failed" : "Not an admin");
+          router.replace("/");
+        } else {
+          setCheckingAuth(false);
+        }
       })
-      .catch(() => router.replace("/signin"));
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        router.replace("/signin");
+      });
   }, [router]);
 
   if (checkingAuth) return <div className="min-h-screen flex items-center justify-center">Verifying Access...</div>;
