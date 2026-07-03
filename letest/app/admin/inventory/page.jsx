@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getToken } from "../../lib/auth"; // Ensure this import path is correct
 
-export default function InventoryPage() {
+export default function InventoryTab() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const API = process.env.NEXT_PUBLIC_API_URL;

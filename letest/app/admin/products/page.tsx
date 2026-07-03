@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Product } from "../../components/types/product";
 import { getToken } from "../../lib/auth"; // Ensure this matches your project path
 
-export default function AdminProducts() {
+export default function ProductsTab() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const API = process.env.NEXT_PUBLIC_API_URL;

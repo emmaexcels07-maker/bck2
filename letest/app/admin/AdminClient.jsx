@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getToken, removeToken } from "../lib/auth.js";
-// Imports for your tabs
+import { getToken, removeToken } from "../lib/auth.js";// AdminClient.jsx
+// Assuming you have a page.jsx inside each folder
 import ProductsTab from "./products/page"; 
-import OrdersTab from "./orders/page.jsx";
-import UsersTab from "./users/page.jsx";
-import InventoryTab from "./inventory/page.jsx";
+import OrdersTab from "./orders/page";
+import UsersTab from "./users/page";
+import InventoryTab from "./inventory/page";
 
 export default function AdminDashboard() {
   const router = useRouter();

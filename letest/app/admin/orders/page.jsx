@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getToken } from "../../lib/auth";
 
-export default function AdminOrdersPage() {
+export default function OrdersTab() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const API = process.env.NEXT_PUBLIC_API_URL;
