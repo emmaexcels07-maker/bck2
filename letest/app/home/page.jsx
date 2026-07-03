@@ -10,6 +10,7 @@ import CartDrawer from "../components/CartDrawer";
 import { getToken } from "../lib/auth";
 import { apiFetch } from "../lib/fetch";
 import Link from "next/link";
+import { useCartStore } from "../lib/store";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -19,7 +20,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
+  const { cartItems } = useCartStore()
 
   useEffect(() => {
     const controller = new AbortController();

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import AddToCartButton from "./AddToCartButton";
 import { Product } from "../types/product";
+import { useCartStore } from "../../lib/store
 
 export default function ProductCard({ product }: { product: Product }) {
   const isOutOfStock = product.stock <= 0;

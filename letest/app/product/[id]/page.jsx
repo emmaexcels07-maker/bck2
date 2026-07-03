@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useCart } from "../../lib/cartContext";
 import { motion } from "framer-motion";
+import { useCartStore } from "../../lib/store";
 import Image from "next/image";
 import Link from "next/link";
 
