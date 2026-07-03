@@ -1,96 +1,110 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { getToken, removeToken } from "../lib/auth.js";// AdminClient.jsx
-// Assuming you have a page.jsx inside each folder
+import { getToken, removeToken } from "../lib/auth.js";
+
+// Import components normally
 import ProductsTab from "./products/page";
 import OrdersTab from "./orders/page";
 import UsersTab from "./users/page";
 import InventoryTab from "./inventory/page";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function AdminDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("products");
-  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [status, setStatus] = useState("loading"); // 'loading' | 'authenticated' | 'unauthenticated'
 
-  // AUTH CHECK
-  // Inside AdminClient.jsx
   useEffect(() => {
-    const token = getToken();
+    let isMounted = true;
 
-    // 1. If no token, kick them out immediately
-    if (!token) {
-      console.log("No token found, redirecting to signin");
-      router.replace("/signin");
-      return;
-    }
+    async function checkAccess() {
+      const token = getToken();
 
-    // 2. Perform check
-    fetch(`${API_URL}/auth/me`, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
+      if (!token) {
+        router.replace("/signin");
+        return;
       }
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log("Auth Check Response:", data); // <--- WATCH THIS IN YOUR CONSOLE!
 
-        // IMPORTANT: Check the path to 'role'. 
-        // Is it data.user.role or data.role? Adjust accordingly.
+      try {
+        const res = await fetch(`${API_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        const data = await res.json();
         const userRole = data.user?.role || data.role;
 
-        if (data.success && userRole === "admin") {
-          setCheckingAuth(false); // SUCCESS!
-        } else {
-          console.log("Validation failed. Success:", data.success, "Role:", userRole);
-          // ONLY redirect if the server actually returned an error
-          // Don't redirect just because the request was slow
-          router.replace("/signin");
+        if (isMounted) {
+          if (res.ok && data.success && userRole === "admin") {
+            setStatus("authenticated");
+          } else {
+            router.replace("/signin");
+          }
         }
-      })
-      .catch((err) => {
-        console.error("Fetch Error:", err);
-        router.replace("/signin");
-      });
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        if (isMounted) router.replace("/signin");
+      }
+    }
+
+    checkAccess();
+    return () => { isMounted = false; };
   }, [router]);
 
-  if (checkingAuth) return <div className="min-h-screen flex items-center justify-center">Verifying Access...</div>;
-
-  const tabs = [
+  // Memoize tabs to prevent unnecessary re-renders
+  const tabs = useMemo(() => [
     { id: "products", label: "Products", component: <ProductsTab /> },
     { id: "orders", label: "Orders", component: <OrdersTab /> },
     { id: "users", label: "Users", component: <UsersTab /> },
     { id: "inventory", label: "Inventory", component: <InventoryTab /> },
-  ];
+  ], []);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-950 text-gray-400">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-2" />
+        Verifying secure access...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
-      <nav className="border-b border-gray-800 bg-gray-900/50 backdrop-blur">
+      <nav className="border-b border-gray-800 bg-gray-900/50 backdrop-blur sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold">Admin Dashboard</h1>
-          <button onClick={() => { removeToken(); router.replace("/signin"); }} className="text-sm text-gray-400 hover:text-red-400">Logout</button>
+          <h1 className="text-xl font-bold tracking-tight">Admin Dashboard</h1>
+          <button 
+            onClick={() => { removeToken(); router.replace("/signin"); }} 
+            className="text-sm bg-gray-800 hover:bg-red-900/30 px-3 py-1.5 rounded-md transition-colors text-gray-300 hover:text-red-400"
+          >
+            Logout
+          </button>
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex gap-2 mb-8 p-1 bg-gray-900 rounded-xl border border-gray-800 w-fit">
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        <div className="flex gap-1 mb-8 p-1 bg-gray-900 rounded-xl border border-gray-800 w-fit">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id ? "bg-gray-800 text-white" : "text-gray-400 hover:text-white"}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeTab === tab.id 
+                ? "bg-gray-800 text-white shadow-sm" 
+                : "text-gray-400 hover:text-white"
+              }`}
             >
               {tab.label}
             </button>
           ))}
         </div>
 
-        <div className="animate-in fade-in duration-500">
+        <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
           {tabs.find(t => t.id === activeTab)?.component}
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

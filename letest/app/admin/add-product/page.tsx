@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getToken } from "../../lib/auth";
 
 export default function AddProduct() {
   const [name, setName] = useState("");
@@ -10,58 +11,25 @@ export default function AddProduct() {
   const [category, setCategory] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [token, setToken] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setToken(localStorage.getItem("token") || "");
-    }
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (preview) URL.revokeObjectURL(preview);
-    };
+    return () => { if (preview) URL.revokeObjectURL(preview); };
   }, [preview]);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (!file.type.startsWith("image/")) {
       alert("Only image files allowed");
       return;
     }
-
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (loading) return;
-
-    if (!token) {
-      alert("You must be logged in");
-      return;
-    }
-
-    if (!name.trim() || !price || !description.trim() || !stock || !category.trim()) {
-      alert("Please fill all fields");
-      return;
-    }
-
-    if (Number(price) <= 0) {
-      alert("Price must be greater than 0");
-      return;
-    }
-
-    if (Number(stock) < 0) {
-      alert("Stock cannot be negative");
-      return;
-    }
-
     setLoading(true);
 
     const form = new FormData();
@@ -73,113 +41,53 @@ export default function AddProduct() {
     if (imageFile) form.append("image", imageFile);
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/products`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: form
-        }
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${getToken()}` },
+        body: form
+      });
 
       const data = await res.json();
-
       if (data.success) {
         alert("Product created successfully!");
-        setName("");
-        setPrice("");
-        setDescription("");
-        setStock("");
-        setCategory("");
-        setImageFile(null);
-        setPreview(null);
+        setName(""); setPrice(""); setDescription(""); setStock(""); setCategory("");
+        setImageFile(null); setPreview(null);
       } else {
         alert(data.message || "Failed to create product");
       }
     } catch {
       alert("Network error");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
 
+  const inputClass = "w-full bg-gray-950 border border-gray-700 p-3 rounded-lg text-gray-100 focus:ring-2 focus:ring-indigo-500 outline-none transition";
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-xl mx-auto p-6 bg-white rounded shadow-lg"
-    >
-      <h2 className="text-2xl font-bold mb-4">Add New Product</h2>
+    <form onSubmit={handleSubmit} className="max-w-xl mx-auto p-8 bg-gray-900 rounded-xl border border-gray-800 shadow-xl">
+      <h2 className="text-2xl font-bold text-white mb-6">Add New Product</h2>
 
-      <input
-        disabled={loading}
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Product Name"
-        className="w-full p-3 border mb-3 rounded"
-        required
-      />
+      <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} placeholder="Product Name" required />
+      
+      <div className="grid grid-cols-2 gap-4 my-4">
+        <input className={inputClass} value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price" type="number" step="0.01" required />
+        <input className={inputClass} value={stock} onChange={(e) => setStock(e.target.value)} placeholder="Stock Quantity" type="number" required />
+      </div>
 
-      <input
-        disabled={loading}
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-        placeholder="Price"
-        type="number"
-        step="0.01"
-        min="0"
-        className="w-full p-3 border mb-3 rounded"
-        required
-      />
+      <input className={`${inputClass} mb-4`} value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" required />
 
-      <textarea
-        disabled={loading}
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Description"
-        className="w-full p-3 border mb-3 rounded"
-        rows={4}
-        required
-      />
+      <textarea className={`${inputClass} mb-4`} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" rows={4} required />
 
-      <input
-        disabled={loading}
-        value={stock}
-        onChange={(e) => setStock(e.target.value)}
-        placeholder="Stock Quantity"
-        type="number"
-        min="0"
-        className="w-full p-3 border mb-3 rounded"
-        required
-      />
-
-      <input
-        disabled={loading}
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        placeholder="Category"
-        className="w-full p-3 border mb-3 rounded"
-        required
-      />
-
-      {preview && (
-        <img
-          src={preview}
-          alt="preview"
-          className="w-32 h-32 object-cover rounded mb-3 border"
-        />
-      )}
-
-      <input
-        disabled={loading}
-        type="file"
-        onChange={handleImageChange}
-        accept="image/*"
-        className="mb-4"
-      />
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-400 mb-2">Product Image</label>
+        <input type="file" onChange={handleImageChange} accept="image/*" className="text-gray-400 text-sm" />
+        {preview && <img src={preview} alt="preview" className="mt-4 w-32 h-32 object-cover rounded-lg border border-gray-700" />}
+      </div>
 
       <button
         disabled={loading}
-        className="bg-blue-600 text-white px-4 py-2 rounded w-full"
+        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50"
       >
         {loading ? "Creating..." : "Create Product"}
       </button>
