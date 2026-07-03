@@ -111,7 +111,7 @@ export default function ShopClient() {
         className="fixed bottom-8 right-8 z-50"
       >
         <Link
-          href="/"
+          href="/home"
           className="flex items-center justify-center w-14 h-14 bg-indigo-600 text-white rounded-full shadow-xl hover:bg-indigo-700 transition-all hover:scale-110 active:scale-95"
           title="Return to Home"
         >
