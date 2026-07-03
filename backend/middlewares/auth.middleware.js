@@ -10,7 +10,7 @@ export function auth(req, res, next) {
         message: "Authorization token required"
       });
     }
-
+    
     const token = authHeader.split(" ")[1];
     const secret = process.env.JWT_SECRET || process.env.JWT_SECRETE;
 
@@ -23,6 +23,7 @@ export function auth(req, res, next) {
     }
 
     const decoded = jwt.verify(token, secret);
+    console.log("JWT Decoded Payload:", decoded);
     req.user = decoded;
     next();
   } catch (err) {

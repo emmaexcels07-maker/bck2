@@ -15,24 +15,43 @@ export default function AdminDashboard() {
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   // AUTH CHECK
+  // Inside AdminClient.jsx
   useEffect(() => {
     const token = getToken();
-    if (!token) { router.replace("/signin"); return; }
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    fetch(`${API_URL}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
+    // 1. If no token, kick them out immediately
+    if (!token) {
+      console.log("No token found, redirecting to signin");
+      router.replace("/signin");
+      return;
+    }
+
+    // 2. Perform check
+    fetch(`${API_URL}/auth/me`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    })
       .then(res => res.json())
-      .then((data) => {
-        console.log("Auth Check Response:", data);
-        if (!data.success || data.user?.role !== "admin") {
-          console.log("Redirecting because:", !data.success ? "Auth failed" : "Not an admin");
-          router.replace("/");
+      .then(data => {
+        console.log("Auth Check Response:", data); // <--- WATCH THIS IN YOUR CONSOLE!
+
+        // IMPORTANT: Check the path to 'role'. 
+        // Is it data.user.role or data.role? Adjust accordingly.
+        const userRole = data.user?.role || data.role;
+
+        if (data.success && userRole === "admin") {
+          setCheckingAuth(false); // SUCCESS!
         } else {
-          setCheckingAuth(false);
+          console.log("Validation failed. Success:", data.success, "Role:", userRole);
+          // ONLY redirect if the server actually returned an error
+          // Don't redirect just because the request was slow
+          router.replace("/signin");
         }
       })
       .catch((err) => {
-        console.error("Fetch error:", err);
+        console.error("Fetch Error:", err);
         router.replace("/signin");
       });
   }, [router]);
