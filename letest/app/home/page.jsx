@@ -12,7 +12,7 @@ import { apiFetch } from "../lib/fetch";
 import Link from "next/link";
 import { useCartStore } from "../lib/store";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://bck2-dtr1.onrender.com/api";
 
 export default function HomePage() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const controller = new AbortController();
-    
+
     if (!getToken()) {
       router.replace("/signin");
       return;

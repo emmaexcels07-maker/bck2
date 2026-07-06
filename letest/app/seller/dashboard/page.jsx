@@ -81,6 +81,17 @@ export default function SellerDashboard() {
                     <Plus className="w-5 h-5" /> Add New Product
                 </button>
             </div>
+            
+            {/* Modals */}
+            {isModalOpen && (
+                <AddProductModal
+                    onClose={() => setIsModalOpen(false)}
+                    onSuccess={() => {
+                        setIsModalOpen(false);
+                        loadMyProducts(); 
+                    }}
+                />
+            )}
 
             {/* Stats Grid */}
             <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
