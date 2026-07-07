@@ -24,13 +24,15 @@ export default function SignInPage() {
         setIsSubmitting(true);
 
         try {
-            const res = await apiPost(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signin`,
-                {
-                    email,
-                    password,
-                }
-            );
+            const url = `https://bck2-dtr1.onrender.com/api/auth/signin`;
+
+            console.log("NEXT_PUBLIC_API_URL =", process.env.NEXT_PUBLIC_API_URL);
+            console.log("Request URL =", url);
+
+            const res = await apiPost(url, {
+                email,
+                password,
+            });
 
             if (res && res.success && res.token) {
                 saveToken(res.token);
