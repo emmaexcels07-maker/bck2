@@ -24,7 +24,7 @@ export default function SignInPage() {
         setIsSubmitting(true);
 
         try {
-            const res = await apiPost("https://bck2-dtr1.onrender.com/api/auth/signin", {
+            const res = await apiPost(`${process.env.NEXT_PUBLIC_API_URL}/auth/signin`, {
                 email,
                 password,
             });
