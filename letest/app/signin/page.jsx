@@ -24,10 +24,13 @@ export default function SignInPage() {
         setIsSubmitting(true);
 
         try {
-            const res = await apiPost(`${process.env.NEXT_PUBLIC_API_URL}/auth/signin`, {
-                email,
-                password,
-            });
+            const res = await apiPost(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signin`,
+                {
+                    email,
+                    password,
+                }
+            );
 
             if (res && res.success && res.token) {
                 saveToken(res.token);
