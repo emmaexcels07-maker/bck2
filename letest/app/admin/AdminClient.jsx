@@ -23,10 +23,6 @@ export default function AdminDashboard() {
     async function checkAccess() {
       const token = getToken();
 
-      if (!token) {
-        router.replace("/signin");
-        return;
-      }
 
       try {
         const res = await fetch(`${API_URL}/auth/me`, {
@@ -45,7 +41,7 @@ export default function AdminDashboard() {
         }
       } catch (err) {
         console.error("Auth check failed:", err);
-        if (isMounted) router.replace("/signin");
+        if (isMounted) router.replace("/home");
       }
     }
 
