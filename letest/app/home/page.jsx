@@ -34,8 +34,8 @@ export default function HomePage() {
       try {
         setLoading(true);
         const [catsRes, productsRes] = await Promise.all([
-          apiFetch(`${API_URL}/categories`, { signal: controller.signal }),
-          apiFetch(`${API_URL}/products?featured=true`, { signal: controller.signal }),
+          apiFetch(`${API_URL}/api/categories`, { signal: controller.signal }),
+          apiFetch(`${API_URL}/api/products?featured=true`, { signal: controller.signal }),
         ]);
 
         if (!catsRes.ok || !productsRes.ok) throw new Error("Failed to fetch store data");
