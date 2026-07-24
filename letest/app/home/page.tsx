@@ -8,6 +8,7 @@ import { ShoppingBag, AlertCircle, ArrowRight, Sparkles } from "lucide-react";
 
 import LogoutButton from "../components/LogoutButton";
 import ProductCard from "../components/product/ProductCard";
+import { Product } from "../components/types/product";
 import CartDrawer from "../components/CartDrawer";
 import { getToken } from "../lib/auth";
 import { apiFetch } from "../lib/fetch";
@@ -20,18 +21,6 @@ interface Category {
   name: string;
   image?: string;
   slug?: string;
-}
-
-interface Product {
-  _id: string;
-  name: string;
-  price: number;
-  slug?: string;
-  description?: string;
-  images?: string[];
-  stock?: number;
-  image?: string;
-  [key: string]: any;
 }
 
 export default function HomePage() {
