@@ -1,54 +1,35 @@
 "use client";
 
-import { useState } from "react";
-import { useCartStore } from "../store/cart.store";
+import React from "react";
 import { Product } from "../types/product";
+import { useCartStore } from "../../lib/store";
 
 interface Props {
   product: Product;
-  quantity: number;
-  className?: string; // Allow overriding styles if needed
+  quantity?: number;
+  disabled?: boolean; // 👈 Added optional disabled prop
+  className?: string;
 }
 
-export default function AddToCartButton({ product, quantity, className = "" }: Props) {
-  const addItem = useCartStore((state) => state.addItem);
-  const [isAdding, setIsAdding] = useState(false);
-
-  const outOfStock = product.stock <= 0;
-
-  const handleAddToCart = () => {
-    if (outOfStock) return;
-
-    setIsAdding(true);
-    addItem(product, quantity);
-
-    // Reset the visual feedback after 1 second
-    setTimeout(() => setIsAdding(false), 1000);
-  };
+export default function AddToCartButton({
+  product,
+  quantity = 1,
+  disabled = false,
+  className = "",
+}: Props) {
+  const addToCart = useCartStore((state) => state.addToCart);
 
   return (
     <button
-      disabled={outOfStock || isAdding}
-      onClick={handleAddToCart}
-      className={`
-        relative px-8 py-3 rounded-xl font-bold text-white transition-all duration-200
-        ${outOfStock
-          ? "bg-gray-300 cursor-not-allowed opacity-50"
-          : isAdding
-            ? "bg-green-600 shadow-green-200"
-            : "bg-indigo-600 hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-indigo-200"
-        }
-        ${className}
-      `}
+      disabled={disabled}
+      onClick={() => addToCart(product, quantity)}
+      className={`w-full py-2.5 px-4 rounded-xl font-semibold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+        disabled
+          ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
+          : "bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white shadow-sm hover:shadow-indigo-500/20 focus:ring-indigo-500"
+      } ${className}`}
     >
-      <span className="flex items-center justify-center gap-2">
-        {outOfStock
-          ? "Out of Stock"
-          : isAdding
-            ? "Added!"
-            : "Add to Cart"
-        }
-      </span>
+      {disabled ? "Out of Stock" : "Add to Cart"}
     </button>
   );
 }
