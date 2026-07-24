@@ -49,37 +49,60 @@ export default function HomePage() {
     }
 
     async function loadData() {
-      try {
-        setLoading(true);
-        setError(null);
+  try {
+    setLoading(true);
+    setError(null);
 
-        const [catsRes, productsRes] = await Promise.all([
-          apiFetch(`${API_BASE}/categories`, { signal: controller.signal }),
-          apiFetch(`${API_BASE}/products?featured=true`, { signal: controller.signal }),
-        ]);
+    const [catsRes, productsRes] = await Promise.all([
+      apiFetch(`${API_BASE}/categories`, { signal: controller.signal }),
+      apiFetch(`${API_BASE}/products?featured=true`, { signal: controller.signal }),
+    ]);
 
-        if (!catsRes.ok || !productsRes.ok) {
-          throw new Error("Unable to fetch storefront details.");
-        }
+    if (!catsRes.ok || !productsRes.ok) {
+      throw new Error("Unable to fetch storefront details.");
+    }
 
-        const [catsData, featData] = await Promise.all([
-          catsRes.json(),
-          productsRes.json(),
-        ]);
+    const [catsData, featData] = await Promise.all([
+      catsRes.json(),
+      productsRes.json(),
+    ]);
 
-        setData({
-          categories: catsData.success ? catsData.categories : [],
-          featured: featData.success ? featData.products : [],
-        });
-      } catch (err: any) {
-        if (err.name !== "AbortError") {
-          console.error("Dashboard Loading Error:", err);
-          setError("Failed to load storefront data. Please try again.");
-        }
-      } finally {
-        setLoading(false);
+    // Safe extraction regardless of API response structure
+    const categoriesList = Array.isArray(catsData)
+      ? catsData
+      : catsData.categories || catsData.data || [];
+
+    let featuredList = Array.isArray(featData)
+      ? featData
+      : featData.products || featData.data || [];
+
+    // Fallback: If no featured products exist, fetch the general catalog (limit 4)
+    if (featuredList.length === 0) {
+      const fallbackRes = await apiFetch(`${API_BASE}/products?limit=4`, {
+        signal: controller.signal,
+      });
+
+      if (fallbackRes.ok) {
+        const fallbackData = await fallbackRes.json();
+        featuredList = Array.isArray(fallbackData)
+          ? fallbackData
+          : fallbackData.products || fallbackData.data || [];
       }
     }
+
+    setData({
+      categories: categoriesList,
+      featured: featuredList,
+    });
+  } catch (err: any) {
+    if (err.name !== "AbortError") {
+      console.error("Dashboard Loading Error:", err);
+      setError("Failed to load storefront data. Please try again.");
+    }
+  } finally {
+    setLoading(false);
+  }
+}
 
     loadData();
     return () => controller.abort();

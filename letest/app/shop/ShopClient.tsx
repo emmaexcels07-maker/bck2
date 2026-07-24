@@ -18,37 +18,45 @@ export default function ShopClient() {
     search: searchParams.get("search") || "",
     min: searchParams.get("min") || "",
     max: searchParams.get("max") || "",
+    category: searchParams.get("category") || "",
   });
 
-  // Sync state if URL changes externally (e.g. browser back/forward buttons)
+  // Sync local filters if URL parameters change externally
   useEffect(() => {
     const currentSearch = searchParams.get("search") || "";
     const currentMin = searchParams.get("min") || "";
     const currentMax = searchParams.get("max") || "";
+    const currentCategory = searchParams.get("category") || "";
 
     setLocalFilters((prev) => {
       if (
         prev.search === currentSearch &&
         prev.min === currentMin &&
-        prev.max === currentMax
+        prev.max === currentMax &&
+        prev.category === currentCategory
       ) {
         return prev;
       }
-      return { search: currentSearch, min: currentMin, max: currentMax };
+      return {
+        search: currentSearch,
+        min: currentMin,
+        max: currentMax,
+        category: currentCategory,
+      };
     });
   }, [searchParams]);
 
-  // Fetch infinite products based on local filters
+  // Fetch infinite products based on active filters
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteProducts(localFilters);
 
-  // Flatten pages for rendering
+  // Flatten paginated responses
   const products = useMemo(
-    () => data?.pages.flatMap((p: any) => p.products) ?? [],
+    () => data?.pages.flatMap((p: any) => p.products || p.data || (Array.isArray(p) ? p : [])) ?? [],
     [data]
   );
 
-  // Debounced URL updates (uses router.replace to avoid clogging history stack)
+  // Debounced sync of state to browser URL without bloating history stack
   useEffect(() => {
     const handler = setTimeout(() => {
       const params = new URLSearchParams();
@@ -56,12 +64,15 @@ export default function ShopClient() {
       if (localFilters.search) params.set("search", localFilters.search);
       if (localFilters.min) params.set("min", localFilters.min);
       if (localFilters.max) params.set("max", localFilters.max);
+      if (localFilters.category) params.set("category", localFilters.category);
 
       const queryString = params.toString();
       const newUrl = queryString ? `/shop?${queryString}` : "/shop";
 
-      // Only update if URL actually changes
-      if (`/shop?${searchParams.toString()}` !== newUrl) {
+      const currentQuery = searchParams.toString();
+      const currentFullUrl = currentQuery ? `/shop?${currentQuery}` : "/shop";
+
+      if (currentFullUrl !== newUrl) {
         router.replace(newUrl, { scroll: false });
       }
     }, 400);
@@ -69,7 +80,7 @@ export default function ShopClient() {
     return () => clearTimeout(handler);
   }, [localFilters, router, searchParams]);
 
-  // Intersection Observer for infinite scrolling
+  // Stable Intersection Observer for continuous scrolling
   useEffect(() => {
     const target = loaderRef.current;
     if (!target) return;
@@ -80,20 +91,20 @@ export default function ShopClient() {
           fetchNextPage();
         }
       },
-      { rootMargin: "300px" }
+      { rootMargin: "200px" }
     );
 
     observer.observe(target);
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Reset all filters
+  // Reset all active filters
   const handleResetFilters = useCallback(() => {
-    setLocalFilters({ search: "", min: "", max: "" });
+    setLocalFilters({ search: "", min: "", max: "", category: "" });
   }, []);
 
   const hasActiveFilters = Boolean(
-    localFilters.search || localFilters.min || localFilters.max
+    localFilters.search || localFilters.min || localFilters.max || localFilters.category
   );
 
   return (
@@ -104,7 +115,7 @@ export default function ShopClient() {
           Our Store
         </h1>
         <p className="text-slate-500 text-sm sm:text-base mt-1">
-          Explore our collection with real-time filtering and search.
+          Explore our collection with real-time filtering and continuous pagination.
         </p>
       </header>
 
@@ -114,6 +125,11 @@ export default function ShopClient() {
           <div className="flex items-center gap-2 text-slate-700 font-semibold text-sm">
             <SlidersHorizontal className="w-4 h-4 text-indigo-600" />
             <span>Filter Products</span>
+            {localFilters.category && (
+              <span className="ml-2 px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+                Category: {localFilters.category}
+              </span>
+            )}
           </div>
           {hasActiveFilters && (
             <button
@@ -165,7 +181,7 @@ export default function ShopClient() {
         </div>
       </section>
 
-      {/* Main Product Display Area */}
+      {/* Main Content */}
       <main className="max-w-7xl mx-auto">
         {isLoading ? (
           <ShopGridSkeleton />
@@ -174,7 +190,7 @@ export default function ShopClient() {
             <PackageX className="w-12 h-12 text-slate-400 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-slate-800">No products found</h3>
             <p className="text-slate-500 text-sm mt-1 max-w-md mx-auto">
-              We couldn't find any products matching your criteria. Try adjusting your search query or price filters.
+              We couldn't find any products matching your criteria. Try adjusting your search query or filters.
             </p>
             {hasActiveFilters && (
               <button
@@ -189,8 +205,8 @@ export default function ShopClient() {
           <ProductGrid products={products} loading={isFetchingNextPage} />
         )}
 
-        {/* Intersection Observer Loader Anchor */}
-        <div ref={loaderRef} className="py-12 flex justify-center items-center">
+        {/* Observer Target Anchor (Maintained outside conditional renders) */}
+        <div ref={loaderRef} className="py-12 flex justify-center items-center min-h-[60px]">
           {isFetchingNextPage && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -204,7 +220,7 @@ export default function ShopClient() {
         </div>
       </main>
 
-      {/* Floating Navigation Button */}
+      {/* Floating Home Link */}
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -224,7 +240,6 @@ export default function ShopClient() {
   );
 }
 
-// Internal Loading Skeleton
 function ShopGridSkeleton() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
