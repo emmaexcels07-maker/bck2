@@ -49,60 +49,72 @@ export default function HomePage() {
     }
 
     async function loadData() {
-  try {
-    setLoading(true);
-    setError(null);
+      try {
+        setLoading(true);
+        setError(null);
 
-    const [catsRes, productsRes] = await Promise.all([
-      apiFetch(`${API_BASE}/categories`, { signal: controller.signal }),
-      apiFetch(`${API_BASE}/products?featured=true`, { signal: controller.signal }),
-    ]);
+        const [catsRes, productsRes] = await Promise.all([
+          apiFetch(`${API_BASE}/categories`, { signal: controller.signal }),
+          apiFetch(`${API_BASE}/products?featured=true`, { signal: controller.signal }),
+        ]);
 
-    if (!catsRes.ok || !productsRes.ok) {
-      throw new Error("Unable to fetch storefront details.");
-    }
+        if (!catsRes.ok || !productsRes.ok) {
+          throw new Error("Unable to fetch storefront details.");
+        }
 
-    const [catsData, featData] = await Promise.all([
-      catsRes.json(),
-      productsRes.json(),
-    ]);
+        const [catsData, featData] = await Promise.all([
+          catsRes.json(),
+          productsRes.json(),
+        ]);
 
-    // Safe extraction regardless of API response structure
-    const categoriesList = Array.isArray(catsData)
-      ? catsData
-      : catsData.categories || catsData.data || [];
+        // 📍 Option #1 Applied Correctly Here:
+        // Extract array safely regardless of standard object key wrapping
+        const categoriesList = Array.isArray(catsData)
+          ? catsData
+          : catsData.categories || catsData.data || [];
 
-    let featuredList = Array.isArray(featData)
-      ? featData
-      : featData.products || featData.data || [];
+        let featuredList = Array.isArray(featData)
+          ? featData
+          : featData.products || featData.data || [];
 
-    // Fallback: If no featured products exist, fetch the general catalog (limit 4)
-    if (featuredList.length === 0) {
-      const fallbackRes = await apiFetch(`${API_BASE}/products?limit=4`, {
-        signal: controller.signal,
-      });
+        // Filter if backend returned full catalog instead of pre-filtering
+        if (featuredList.length > 0) {
+          const explicitFeatured = featuredList.filter(
+            (p: any) => p.isFeatured || p.featured === true
+          );
+          // If explicit featured flags exist, use them; otherwise use the list returned
+          if (explicitFeatured.length > 0) {
+            featuredList = explicitFeatured;
+          }
+        }
 
-      if (fallbackRes.ok) {
-        const fallbackData = await fallbackRes.json();
-        featuredList = Array.isArray(fallbackData)
-          ? fallbackData
-          : fallbackData.products || fallbackData.data || [];
+        // Fallback: If no featured products exist, fetch the general catalog (limit 4)
+        if (featuredList.length === 0) {
+          const fallbackRes = await apiFetch(`${API_BASE}/products?limit=4`, {
+            signal: controller.signal,
+          });
+
+          if (fallbackRes.ok) {
+            const fallbackData = await fallbackRes.json();
+            featuredList = Array.isArray(fallbackData)
+              ? fallbackData
+              : fallbackData.products || fallbackData.data || [];
+          }
+        }
+
+        setData({
+          categories: categoriesList,
+          featured: featuredList,
+        });
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          console.error("Dashboard Loading Error:", err);
+          setError("Failed to load storefront data. Please try again.");
+        }
+      } finally {
+        setLoading(false);
       }
     }
-
-    setData({
-      categories: categoriesList,
-      featured: featuredList,
-    });
-  } catch (err: any) {
-    if (err.name !== "AbortError") {
-      console.error("Dashboard Loading Error:", err);
-      setError("Failed to load storefront data. Please try again.");
-    }
-  } finally {
-    setLoading(false);
-  }
-}
 
     loadData();
     return () => controller.abort();

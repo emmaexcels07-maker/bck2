@@ -37,3 +37,30 @@ export async function apiPost(url, data, token = null) {
         throw error;
     }
 }
+
+// lib/api.ts
+export async function getFeaturedProducts() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+      cache: "no-store", // Or next: { revalidate: 60 }
+    });
+    
+    if (!res.ok) return [];
+    
+    const data = await res.json();
+
+    // 📍 PUT OPTION #1 HERE
+    const productList = Array.isArray(data)
+      ? data
+      : Array.isArray(data.products)
+      ? data.products
+      : Array.isArray(data.data)
+      ? data.data
+      : [];
+
+    return productList.filter((p) => p.isFeatured || p.featured === true);
+  } catch (error) {
+    console.error("Failed to fetch featured products:", error);
+    return [];
+  }
+}
