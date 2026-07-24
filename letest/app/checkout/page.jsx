@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { getToken } from "../../lib/auth"; // Aligned with auth helper
+import { getToken } from "../lib/auth"; // Aligned with auth helper
 import { Loader2, ShoppingBag, ShieldCheck, ArrowLeft } from "lucide-react";
 
 export default function CheckoutPage() {
