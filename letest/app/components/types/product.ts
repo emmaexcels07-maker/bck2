@@ -14,4 +14,6 @@ export interface Product {
   isPublished: boolean;  // Administrative toggle to hide/show products
   createdAt: string;     // ISO Date for "New Arrivals" sorting
   updatedAt: string;
+  [key: string]: any; // Catch-all for extra backend properties
+
 }

@@ -26,6 +26,10 @@ interface Product {
   _id: string;
   name: string;
   price: number;
+  slug?: string;
+  description?: string;
+  images?: string[];
+  stock?: number;
   image?: string;
   [key: string]: any;
 }
@@ -44,7 +48,7 @@ export default function HomePage() {
 
   // Calculate total item count (accounts for quantities per item)
   const totalCartCount = useMemo(() => {
-    return cartItems.reduce((total, item) => total + (item.quantity || 1), 0);
+    return cartItems.reduce((total: number, item: any) => total + (item.quantity || 1), 0);
   }, [cartItems]);
 
   useEffect(() => {
